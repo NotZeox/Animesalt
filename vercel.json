@@ -1,0 +1,31 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "name": "anime-salt-api",
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node@latest",
+      "config": {
+        "includeFiles": [
+          "**/*.js",
+          "**/*.json",
+          "config/**/*",
+          "extractors/**/*",
+          "utils/**/*"
+        ]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/server.js",
+      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"]
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "framework": null
+}
