@@ -1,0 +1,240 @@
+0 verbose cli /usr/bin/node /usr/bin/npm
+1 info using npm@10.8.2
+2 info using node@v20.19.6
+3 silly config load:file:/usr/lib/node_modules/npm/npmrc
+4 silly config load:file:/workspace/anime-api/.npmrc
+5 silly config load:file:/home/minimax/.npmrc
+6 silly config load:file:/workspace/anime-api/etc/npmrc
+7 verbose title npm install express axios cheerio
+8 verbose argv "install" "express" "axios" "cheerio" "--prefix" "/workspace/anime-api" "--cache" "/workspace/anime-api/.npm-cache"
+9 verbose logfile logs-max:10 dir:/workspace/anime-api/.npm-cache/_logs/2025-12-30T17_31_24_063Z-
+10 verbose logfile /workspace/anime-api/.npm-cache/_logs/2025-12-30T17_31_24_063Z-debug-0.log
+11 silly packumentCache heap:2197815296 maxSize:549453824 maxEntrySize:274726912
+12 silly logfile done cleaning log files
+13 silly idealTree buildDeps
+14 silly fetch manifest axios@^1.13.2
+15 silly packumentCache full:https://registry.npmjs.org/axios cache-miss
+16 http fetch GET 200 https://registry.npmjs.org/axios 3864ms (cache revalidated)
+17 silly packumentCache full:https://registry.npmjs.org/axios set size:733991 disposed:false
+18 silly fetch manifest cheerio@^1.1.2
+19 silly packumentCache full:https://registry.npmjs.org/cheerio cache-miss
+20 http fetch GET 200 https://registry.npmjs.org/cheerio 78ms (cache revalidated)
+21 silly packumentCache full:https://registry.npmjs.org/cheerio set size:165731 disposed:false
+22 silly fetch manifest express@^4.22.1
+23 silly packumentCache full:https://registry.npmjs.org/express cache-miss
+24 http fetch GET 200 https://registry.npmjs.org/express 69ms (cache revalidated)
+25 silly packumentCache full:https://registry.npmjs.org/express set size:801203 disposed:false
+26 silly placeDep ROOT axios@1.13.2 REPLACE for: anime-salt-api@1.0.0 want: ^1.13.2
+27 silly placeDep ROOT cheerio@1.1.2 REPLACE for: anime-salt-api@1.0.0 want: ^1.1.2
+28 silly placeDep ROOT express@4.22.1 REPLACE for: anime-salt-api@1.0.0 want: ^4.22.1
+29 silly reify moves {}
+30 silly audit bulk request {
+30 silly audit   accepts: [ '1.3.8' ],
+30 silly audit   'array-flatten': [ '1.1.1' ],
+30 silly audit   asynckit: [ '0.4.0' ],
+30 silly audit   'body-parser': [ '1.20.4' ],
+30 silly audit   'iconv-lite': [ '0.4.24', '0.6.3' ],
+30 silly audit   boolbase: [ '1.0.0' ],
+30 silly audit   bytes: [ '3.1.2' ],
+30 silly audit   'call-bind-apply-helpers': [ '1.0.2' ],
+30 silly audit   'call-bound': [ '1.0.4' ],
+30 silly audit   'cheerio-select': [ '2.1.0' ],
+30 silly audit   'combined-stream': [ '1.0.8' ],
+30 silly audit   'content-disposition': [ '0.5.4' ],
+30 silly audit   'content-type': [ '1.0.5' ],
+30 silly audit   cookie: [ '0.7.2' ],
+30 silly audit   'cookie-signature': [ '1.0.7' ],
+30 silly audit   cors: [ '2.8.5' ],
+30 silly audit   'css-select': [ '5.2.2' ],
+30 silly audit   'css-what': [ '6.2.2' ],
+30 silly audit   debug: [ '2.6.9' ],
+30 silly audit   'delayed-stream': [ '1.0.0' ],
+30 silly audit   depd: [ '2.0.0' ],
+30 silly audit   destroy: [ '1.2.0' ],
+30 silly audit   'dom-serializer': [ '2.0.0' ],
+30 silly audit   domelementtype: [ '2.3.0' ],
+30 silly audit   domhandler: [ '5.0.3' ],
+30 silly audit   domutils: [ '3.2.2' ],
+30 silly audit   'dunder-proto': [ '1.0.1' ],
+30 silly audit   'ee-first': [ '1.1.1' ],
+30 silly audit   encodeurl: [ '2.0.0' ],
+30 silly audit   'encoding-sniffer': [ '0.2.1' ],
+30 silly audit   entities: [ '4.5.0', '6.0.1' ],
+30 silly audit   'es-define-property': [ '1.0.1' ],
+30 silly audit   'es-errors': [ '1.3.0' ],
+30 silly audit   'es-object-atoms': [ '1.1.1' ],
+30 silly audit   'es-set-tostringtag': [ '2.1.0' ],
+30 silly audit   'escape-html': [ '1.0.3' ],
+30 silly audit   etag: [ '1.8.1' ],
+30 silly audit   finalhandler: [ '1.3.2' ],
+30 silly audit   'follow-redirects': [ '1.15.11' ],
+30 silly audit   'form-data': [ '4.0.5' ],
+30 silly audit   forwarded: [ '0.2.0' ],
+30 silly audit   fresh: [ '0.5.2' ],
+30 silly audit   'function-bind': [ '1.1.2' ],
+30 silly audit   'get-intrinsic': [ '1.3.0' ],
+30 silly audit   'get-proto': [ '1.0.1' ],
+30 silly audit   gopd: [ '1.2.0' ],
+30 silly audit   'has-symbols': [ '1.1.0' ],
+30 silly audit   'has-tostringtag': [ '1.0.2' ],
+30 silly audit   hasown: [ '2.0.2' ],
+30 silly audit   htmlparser2: [ '10.0.0' ],
+30 silly audit   'http-errors': [ '2.0.1' ],
+30 silly audit   inherits: [ '2.0.4' ],
+30 silly audit   'ipaddr.js': [ '1.9.1' ],
+30 silly audit   'math-intrinsics': [ '1.1.0' ],
+30 silly audit   'media-typer': [ '0.3.0' ],
+30 silly audit   'merge-descriptors': [ '1.0.3' ],
+30 silly audit   methods: [ '1.1.2' ],
+30 silly audit   mime: [ '1.6.0' ],
+30 silly audit   'mime-db': [ '1.52.0' ],
+30 silly audit   'mime-types': [ '2.1.35' ],
+30 silly audit   ms: [ '2.0.0', '2.1.3' ],
+30 silly audit   negotiator: [ '0.6.3' ],
+30 silly audit   'nth-check': [ '2.1.1' ],
+30 silly audit   'object-assign': [ '4.1.1' ],
+30 silly audit   'object-inspect': [ '1.13.4' ],
+30 silly audit   'on-finished': [ '2.4.1' ],
+30 silly audit   parse5: [ '7.3.0' ],
+30 silly audit   'parse5-htmlparser2-tree-adapter': [ '7.1.0' ],
+30 silly audit   'parse5-parser-stream': [ '7.1.2' ],
+30 silly audit   parseurl: [ '1.3.3' ],
+30 silly audit   'path-to-regexp': [ '0.1.12' ],
+30 silly audit   'proxy-addr': [ '2.0.7' ],
+30 silly audit   'proxy-from-env': [ '1.1.0' ],
+30 silly audit   qs: [ '6.14.0' ],
+30 silly audit   'range-parser': [ '1.2.1' ],
+30 silly audit   'raw-body': [ '2.5.3' ],
+30 silly audit   'safe-buffer': [ '5.2.1' ],
+30 silly audit   'safer-buffer': [ '2.1.2' ],
+30 silly audit   send: [ '0.19.2' ],
+30 silly audit   'serve-static': [ '1.16.3' ],
+30 silly audit   setprototypeof: [ '1.2.0' ],
+30 silly audit   'side-channel': [ '1.1.0' ],
+30 silly audit   'side-channel-list': [ '1.0.0' ],
+30 silly audit   'side-channel-map': [ '1.0.1' ],
+30 silly audit   'side-channel-weakmap': [ '1.0.2' ],
+30 silly audit   statuses: [ '2.0.2' ],
+30 silly audit   toidentifier: [ '1.0.1' ],
+30 silly audit   'type-is': [ '1.6.18' ],
+30 silly audit   undici: [ '7.16.0' ],
+30 silly audit   unpipe: [ '1.0.0' ],
+30 silly audit   'utils-merge': [ '1.0.1' ],
+30 silly audit   vary: [ '1.1.2' ],
+30 silly audit   'whatwg-encoding': [ '3.1.1' ],
+30 silly audit   'whatwg-mimetype': [ '4.0.0' ],
+30 silly audit   axios: [ '1.13.2' ],
+30 silly audit   cheerio: [ '1.1.2' ],
+30 silly audit   express: [ '4.22.1' ]
+30 silly audit }
+31 http fetch POST 200 https://registry.npmjs.org/-/npm/v1/security/advisories/bulk 200ms
+32 silly audit report {}
+33 warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+34 silly ADD node_modules/express
+35 silly ADD node_modules/cheerio
+36 silly ADD node_modules/axios
+37 silly ADD node_modules/whatwg-mimetype
+38 silly ADD node_modules/whatwg-encoding
+39 silly ADD node_modules/vary
+40 silly ADD node_modules/utils-merge
+41 silly ADD node_modules/unpipe
+42 silly ADD node_modules/undici
+43 silly ADD node_modules/type-is
+44 silly ADD node_modules/toidentifier
+45 silly ADD node_modules/statuses
+46 silly ADD node_modules/side-channel-weakmap
+47 silly ADD node_modules/side-channel-map
+48 silly ADD node_modules/side-channel-list
+49 silly ADD node_modules/side-channel
+50 silly ADD node_modules/setprototypeof
+51 silly ADD node_modules/serve-static
+52 silly ADD node_modules/send
+53 silly ADD node_modules/send/node_modules/ms
+54 silly ADD node_modules/safer-buffer
+55 silly ADD node_modules/safe-buffer
+56 silly ADD node_modules/raw-body
+57 silly ADD node_modules/raw-body/node_modules/iconv-lite
+58 silly ADD node_modules/range-parser
+59 silly ADD node_modules/qs
+60 silly ADD node_modules/proxy-from-env
+61 silly ADD node_modules/proxy-addr
+62 silly ADD node_modules/path-to-regexp
+63 silly ADD node_modules/parseurl
+64 silly ADD node_modules/parse5-parser-stream
+65 silly ADD node_modules/parse5-htmlparser2-tree-adapter
+66 silly ADD node_modules/parse5
+67 silly ADD node_modules/parse5/node_modules/entities
+68 silly ADD node_modules/on-finished
+69 silly ADD node_modules/object-inspect
+70 silly ADD node_modules/object-assign
+71 silly ADD node_modules/nth-check
+72 silly ADD node_modules/negotiator
+73 silly ADD node_modules/ms
+74 silly ADD node_modules/mime-types
+75 silly ADD node_modules/mime-db
+76 silly ADD node_modules/mime
+77 silly ADD node_modules/methods
+78 silly ADD node_modules/merge-descriptors
+79 silly ADD node_modules/media-typer
+80 silly ADD node_modules/math-intrinsics
+81 silly ADD node_modules/ipaddr.js
+82 silly ADD node_modules/inherits
+83 silly ADD node_modules/iconv-lite
+84 silly ADD node_modules/http-errors
+85 silly ADD node_modules/htmlparser2
+86 silly ADD node_modules/htmlparser2/node_modules/entities
+87 silly ADD node_modules/hasown
+88 silly ADD node_modules/has-tostringtag
+89 silly ADD node_modules/has-symbols
+90 silly ADD node_modules/gopd
+91 silly ADD node_modules/get-proto
+92 silly ADD node_modules/get-intrinsic
+93 silly ADD node_modules/function-bind
+94 silly ADD node_modules/fresh
+95 silly ADD node_modules/forwarded
+96 silly ADD node_modules/form-data
+97 silly ADD node_modules/follow-redirects
+98 silly ADD node_modules/finalhandler
+99 silly ADD node_modules/etag
+100 silly ADD node_modules/escape-html
+101 silly ADD node_modules/es-set-tostringtag
+102 silly ADD node_modules/es-object-atoms
+103 silly ADD node_modules/es-errors
+104 silly ADD node_modules/es-define-property
+105 silly ADD node_modules/entities
+106 silly ADD node_modules/encoding-sniffer
+107 silly ADD node_modules/encodeurl
+108 silly ADD node_modules/ee-first
+109 silly ADD node_modules/dunder-proto
+110 silly ADD node_modules/domutils
+111 silly ADD node_modules/domhandler
+112 silly ADD node_modules/domelementtype
+113 silly ADD node_modules/dom-serializer
+114 silly ADD node_modules/destroy
+115 silly ADD node_modules/depd
+116 silly ADD node_modules/delayed-stream
+117 silly ADD node_modules/debug
+118 silly ADD node_modules/css-what
+119 silly ADD node_modules/css-select
+120 silly ADD node_modules/cors
+121 silly ADD node_modules/cookie-signature
+122 silly ADD node_modules/cookie
+123 silly ADD node_modules/content-type
+124 silly ADD node_modules/content-disposition
+125 silly ADD node_modules/combined-stream
+126 silly ADD node_modules/cheerio-select
+127 silly ADD node_modules/call-bound
+128 silly ADD node_modules/call-bind-apply-helpers
+129 silly ADD node_modules/bytes
+130 silly ADD node_modules/boolbase
+131 silly ADD node_modules/body-parser
+132 silly ADD node_modules/body-parser/node_modules/iconv-lite
+133 silly ADD node_modules/asynckit
+134 silly ADD node_modules/array-flatten
+135 silly ADD node_modules/accepts
+136 verbose cwd /workspace/anime-api
+137 verbose os Linux 5.10.134-18.al8.x86_64
+138 verbose node v20.19.6
+139 verbose npm  v10.8.2
+140 verbose exit 0
+141 info ok
