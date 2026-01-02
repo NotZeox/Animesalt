@@ -1,43 +1,96 @@
 /**
- * Home Page Extractor for Anime Salt API
- * Extracts all homepage data including spotlights, trending, top series, etc.
+ * Simplified Home Page Extractor for Anime Salt API
+ * Produces a clean, flat structure optimized for frontend consumption
+ * 
+ * Target Response Structure:
+ * {
+ *   "success": true,
+ *   "meta": { "source", "timestamp", "itemCount" },
+ *   "featured": [...],
+ *   "trending": [...],
+ *   "latest": [...],
+ *   "topRated": [...],
+ *   "ongoing": [...],
+ *   "movies": [...],
+ *   "series": [...],
+ *   "recentEpisodes": [...],
+ *   "animeList": [...],
+ *   "filters": { "genres", "languages", "letters", "networks" }
+ * }
  */
 
-const { fetchHTML, getImageUrl, normalizeUrl, extractIdFromUrl, sanitizeText } = require('../utils/helpers');
-const SELECTORS = require('../utils/constants').SELECTORS;
+const { fetchHTML, getImageUrl, normalizeUrl, extractIdFromUrl, sanitizeText, delay } = require('../utils/helpers');
 
 class HomeExtractor {
     constructor(baseUrl) {
         this.baseUrl = baseUrl;
+        this.maxRetries = 3;
+        this.requestDelay = 1000;
     }
 
     /**
-     * Extract all homepage data
+     * Extract all homepage data with simplified structure
      */
     async extract() {
+        const startTime = Date.now();
+        const globalItems = new Map(); // For deduplication
+
         try {
-            const html = await fetchHTML(this.baseUrl);
+            const html = await this.fetchWithRetry(this.baseUrl);
             const $ = require('cheerio').load(html);
 
-            const results = {
-                spotlights: await this.extractSpotlights($),
-                trending: await this.extractTrending($),
-                topSeries: await this.extractTopSeries($),
-                topMovies: await this.extractTopMovies($),
-                recentEpisodes: await this.extractRecentEpisodes($),
-                networks: await this.extractNetworks($),
-                languages: await this.extractLanguages($),
-                genres: await this.extractGenres($),
-                freshDrops: await this.extractFreshDrops($),
-                upcoming: await this.extractUpcoming($),
-                onAir: await this.extractOnAir($),
-                latestMoviesSeries: await this.extractLatestMoviesSeries($),
-                freshCartoonFilms: await this.extractFreshCartoonFilms($),
+            // Extract all sections
+            const featured = this.extractFeatured($);
+            const trending = this.extractTrending($);
+            const latest = this.extractLatest($);
+            const topRated = this.extractTopRated($);
+            const ongoing = this.extractOngoing($);
+            const movies = this.extractMovies($);
+            const series = this.extractSeries($);
+            const recentEpisodes = this.extractRecentEpisodes($);
+
+            // Collect all items for the master list and deduplicate
+            const allSections = [featured, trending, latest, topRated, ongoing, movies, series, recentEpisodes];
+            
+            for (const section of allSections) {
+                for (const item of section) {
+                    if (item.id && !globalItems.has(item.id)) {
+                        globalItems.set(item.id, item);
+                    }
+                }
+            }
+
+            // Build animeList from deduplicated items
+            const animeList = Array.from(globalItems.values());
+
+            // Extract filters
+            const filters = {
+                genres: this.extractGenreList($),
+                languages: this.extractLanguageList($),
+                letters: this.extractLetterList($),
+                networks: this.extractNetworkList($),
             };
+
+            const processingTime = Date.now() - startTime;
 
             return {
                 success: true,
-                data: results,
+                meta: {
+                    source: 'animesalt.cc',
+                    timestamp: new Date().toISOString(),
+                    itemCount: animeList.length,
+                    processingTime: `${processingTime}ms`,
+                },
+                featured: featured.slice(0, 10),
+                trending: trending.slice(0, 10),
+                latest: latest.slice(0, 20),
+                topRated: topRated.slice(0, 20),
+                ongoing: ongoing.slice(0, 20),
+                movies: movies.slice(0, 50),
+                series: series.slice(0, 100),
+                recentEpisodes: recentEpisodes.slice(0, 30),
+                animeList: animeList,
+                filters: filters,
             };
         } catch (error) {
             console.error('[HomeExtractor] Error:', error.message);
@@ -49,481 +102,468 @@ class HomeExtractor {
     }
 
     /**
-     * Extract spotlight/featured anime
+     * Fetch HTML with retry logic
      */
-    async extractSpotlights($) {
-        const spotlights = [];
-        
-        $(SELECTORS.home.spotlight).each((i, el) => {
-            const $el = $(el);
-            const link = $el.find('a').attr('href');
-            const title = $el.find('.title, .slide-title').text().trim();
-            const poster = getImageUrl($el.find('img'));
-            
-            if (title && link) {
-                spotlights.push({
-                    id: extractIdFromUrl(link),
-                    title: sanitizeText(title),
-                    poster: poster,
-                    link: normalizeUrl(link),
-                    japanese_title: '',
-                    description: $el.find('.description, .synopsis').text().trim() || '',
-                    tvInfo: {
-                        showType: 'TV',
-                        duration: '24 min',
-                        quality: 'HD',
-                    },
-                });
+    async fetchWithRetry(url, retries = this.maxRetries) {
+        for (let attempt = 1; attempt <= retries; attempt++) {
+            try {
+                const html = await fetchHTML(url);
+                if (html && html.length > 100) {
+                    return html;
+                }
+                throw new Error('Empty or invalid response');
+            } catch (error) {
+                if (attempt === retries) {
+                    throw error;
+                }
+                await delay(attempt * this.requestDelay);
             }
-        });
-
-        return spotlights;
+        }
     }
 
     /**
-     * Extract trending anime (top 10 chart)
+     * Extract featured/spotlight anime
      */
-    async extractTrending($) {
-        const trending = [];
+    extractFeatured($) {
+        const items = [];
         
-        $(SELECTORS.home.trending).each((i, el) => {
-            const $el = $(el);
-            const link = $el.find('.chart-poster').attr('href');
-            const title = $el.find('.chart-title').text().trim();
-            const poster = getImageUrl($el.find('img'));
-            const number = $el.find('.chart-number').text().trim();
-            
-            if (title && link) {
-                trending.push({
-                    id: extractIdFromUrl(link),
-                    number: parseInt(number) || (i + 1),
-                    title: sanitizeText(title),
-                    poster: poster,
-                    link: normalizeUrl(link),
-                    japanese_title: '',
-                });
-            }
-        });
+        // Try to find carousel/slider section
+        const carouselSection = $('.swiper-slide, .hero-slider, .featured-slider, .spotlight-carousel, .swipecarousel');
+        
+        if (carouselSection.length > 0) {
+            carouselSection.find('.post, .slide, .item').each((i, el) => {
+                const item = this.parseAnimeItem($(el));
+                if (item) items.push(item);
+            });
+        }
 
-        return trending.slice(0, 10);
+        // Fallback: extract from popular posts
+        if (items.length === 0) {
+            $('article.post, .post, .movies .tt').each((i, el) => {
+                if (items.length >= 10) return false;
+                const item = this.parseAnimeItem($(el));
+                if (item) items.push(item);
+            });
+        }
+
+        return items;
     }
 
     /**
-     * Extract top series (50 items)
+     * Extract trending anime (Top 10)
      */
-    async extractTopSeries($) {
-        const topSeries = [];
+    extractTrending($) {
+        const items = [];
         
-        $(SELECTORS.home.trending).each((i, el) => {
-            const $el = $(el);
-            const link = $el.find('.chart-poster').attr('href');
-            const title = $el.find('.chart-title').text().trim();
-            const poster = getImageUrl($el.find('img'));
-            const number = $el.find('.chart-number').text().trim();
-            
-            if (title && link) {
-                topSeries.push({
-                    id: extractIdFromUrl(link),
-                    number: parseInt(number) || (i + 1),
-                    title: sanitizeText(title),
-                    poster: poster,
-                    link: normalizeUrl(link),
-                    japanese_title: '',
-                });
+        // Look for Most-Watched/Popular sections
+        let section = $();
+        
+        $('section, .widget').each(function() {
+            const title = $(this).find('.section-title, .widget-title, h3').text().toLowerCase();
+            if (title.includes('trending') || title.includes('most-watch') || title.includes('popular')) {
+                section = $(this);
+                return false;
             }
         });
 
-        return topSeries;
+        if (section.length > 0) {
+            section.find('.post, .chart-item, .movies .tt').each((i, el) => {
+                const item = this.parseAnimeItem($(el));
+                if (item) items.push(item);
+            });
+        }
+
+        // Fallback
+        if (items.length === 0) {
+            $('article.post, .post, .movies .tt').each((i, el) => {
+                if (items.length >= 10) return false;
+                const item = this.parseAnimeItem($(el));
+                if (item) items.push(item);
+            });
+        }
+
+        return items;
     }
 
     /**
-     * Extract top movies (50 items)
+     * Extract latest anime updates
      */
-    async extractTopMovies($) {
-        const topMovies = [];
+    extractLatest($) {
+        const items = [];
         
-        $(SELECTORS.home.topMovies).each((i, el) => {
-            const $el = $(el);
-            const link = $el.find('.chart-poster').attr('href');
-            const title = $el.find('.chart-title').text().trim();
-            const poster = getImageUrl($el.find('img'));
-            const number = $el.find('.chart-number').text().trim();
-            
-            if (title && link) {
-                topMovies.push({
-                    id: extractIdFromUrl(link),
-                    number: parseInt(number) || (i + 1),
-                    title: sanitizeText(title),
-                    poster: poster,
-                    link: normalizeUrl(link),
-                    japanese_title: '',
-                    showType: 'Movie',
-                });
+        let section = $();
+        
+        $('section, .widget').each(function() {
+            const title = $(this).find('.section-title, .widget-title, h3').text().toLowerCase();
+            if (title.includes('latest') || title.includes('recent')) {
+                section = $(this);
+                return false;
             }
         });
 
-        return topMovies;
+        section.find('.post, .movies .tt').each((i, el) => {
+            const item = this.parseAnimeItem($(el));
+            if (item) items.push(item);
+        });
+
+        // Fallback
+        if (items.length === 0) {
+            $('article.post, .post').each((i, el) => {
+                const item = this.parseAnimeItem($(el));
+                if (item) items.push(item);
+            });
+        }
+
+        return items;
+    }
+
+    /**
+     * Extract top rated anime
+     */
+    extractTopRated($) {
+        const items = [];
+        
+        let section = $();
+        
+        $('section, .widget').each(function() {
+            const title = $(this).find('.section-title, .widget-title, h3').text().toLowerCase();
+            if (title.includes('top') && (title.includes('rated') || title.includes('rating'))) {
+                section = $(this);
+                return false;
+            }
+        });
+
+        section.find('.post, .chart-item, .movies .tt').each((i, el) => {
+            const item = this.parseAnimeItem($(el));
+            if (item) items.push(item);
+        });
+
+        return items;
+    }
+
+    /**
+     * Extract ongoing/airing anime
+     */
+    extractOngoing($) {
+        const items = [];
+        
+        let section = $();
+        
+        $('section, .widget').each(function() {
+            const title = $(this).find('.section-title, .widget-title, h3').text().toLowerCase();
+            if (title.includes('on-air') || title.includes('airing') || title.includes('currently')) {
+                section = $(this);
+                return false;
+            }
+        });
+
+        section.find('.post, .movies .tt, .swiper-slide .post').each((i, el) => {
+            const item = this.parseAnimeItem($(el));
+            if (item) items.push(item);
+        });
+
+        return items;
+    }
+
+    /**
+     * Extract movies only
+     */
+    extractMovies($) {
+        const items = [];
+        
+        let section = $();
+        
+        $('section, .widget').each(function() {
+            const title = $(this).find('.section-title, .widget-title, h3').text().toLowerCase();
+            if (title.includes('movie')) {
+                section = $(this);
+                return false;
+            }
+        });
+
+        section.find('.post, .movies .tt, .chart-item').each((i, el) => {
+            const item = this.parseAnimeItem($(el));
+            if (item && item.type === 'movie') items.push(item);
+        });
+
+        // Fallback: filter by /movies/ links
+        if (items.length === 0) {
+            $('a[href*="/movies/"]').closest('.post, article.post, .movies .tt').each((i, el) => {
+                const item = this.parseAnimeItem($(el));
+                if (item) items.push(item);
+            });
+        }
+
+        return items;
+    }
+
+    /**
+     * Extract series only
+     */
+    extractSeries($) {
+        const items = [];
+        
+        let section = $();
+        
+        $('section, .widget').each(function() {
+            const title = $(this).find('.section-title, .widget-title, h3').text().toLowerCase();
+            if (title.includes('series') && !title.includes('movie')) {
+                section = $(this);
+                return false;
+            }
+        });
+
+        section.find('.post, .movies .tt, .chart-item').each((i, el) => {
+            const item = this.parseAnimeItem($(el));
+            if (item && item.type === 'series') items.push(item);
+        });
+
+        // Fallback: filter by /series/ links
+        if (items.length === 0) {
+            $('a[href*="/series/"]').closest('.post, article.post, .movies .tt').each((i, el) => {
+                const item = this.parseAnimeItem($(el));
+                if (item) items.push(item);
+            });
+        }
+
+        return items;
     }
 
     /**
      * Extract recent episodes
      */
-    async extractRecentEpisodes($) {
-        const recentEpisodes = [];
-        
-        $(SELECTORS.home.recentEpisodes).each((i, el) => {
-            const $el = $(el);
-            const link = $el.find('a.lnk-blk').attr('href') || $el.find('a').attr('href');
-            const title = $el.find('.entry-title').text().trim();
-            const poster = getImageUrl($el.find('img'));
-            const episode = $el.find('.num-epi, .episode').text().trim();
-            
-            if (title && link) {
-                recentEpisodes.push({
-                    id: extractIdFromUrl(link),
-                    title: sanitizeText(title),
-                    poster: poster,
-                    link: normalizeUrl(link),
-                    episode: episode,
-                });
-            }
-        });
-
-        return recentEpisodes.slice(0, 20);
-    }
-
-    /**
-     * Extract network/studio logos
-     */
-    async extractNetworks($) {
-        const networks = [];
-        
-        $(SELECTORS.home.networks).each((i, el) => {
-            const $el = $(el);
-            const link = $el.attr('href');
-            const logo = getImageUrl($el.find('img'));
-            const name = $el.attr('title') || $el.find('img').attr('alt');
-            
-            if (link && name) {
-                networks.push({
-                    id: name.toLowerCase().replace(/\s+/g, '-'),
-                    name: sanitizeText(name),
-                    logo: logo,
-                    link: normalizeUrl(link),
-                });
-            }
-        });
-
-        return networks;
-    }
-
-    /**
-     * Extract available languages
-     */
-    async extractLanguages($) {
-        const languages = [];
-        
-        $(SELECTORS.home.languages).each((i, el) => {
-            const $el = $(el);
-            const lang = $el.attr('data-lang');
-            const name = $el.attr('data-name');
-            const native = $el.attr('data-native');
-            
-            if (lang && name) {
-                languages.push({
-                    code: lang.replace('/category/language/', ''),
-                    name: sanitizeText(name),
-                    native: sanitizeText(native || ''),
-                    link: normalizeUrl(lang + '/'),
-                });
-            }
-        });
-
-        return languages;
-    }
-
-    /**
-     * Extract available genres
-     */
-    async extractGenres($) {
-        const genres = [];
-        
-        $('a[href*="/category/genre/"]').each((i, el) => {
-            const link = $(el).attr('href');
-            const name = $(el).text().trim();
-            
-            if (name && link && !genres.find(g => g.name === name)) {
-                genres.push({
-                    name: sanitizeText(name),
-                    link: normalizeUrl(link),
-                });
-            }
-        });
-
-        return genres;
-    }
-
-    /**
-     * Extract Fresh Drops (Fresh Dubs) section
-     */
-    async extractFreshDrops($) {
-        const freshDrops = [];
-        
-        // Try multiple selector patterns for Fresh Dubs sections
-        let container = $('#widget_block-8');
-        
-        // If not found by ID, search for Fresh Dubs section by title
-        if (container.length === 0) {
-            $('section').each(function() {
-                if ($(this).find('.section-title').text().toLowerCase().includes('fresh dubs')) {
-                    container = $(this);
-                    return false;
-                }
-            });
-        }
-        
-        const items = container.length ? container.find('.post') : $('article.post');
-        
-        items.each((i, el) => {
-            const $el = $(el);
-            const link = $el.find('a.lnk-blk').attr('href') || $el.find('a').first().attr('href');
-            const title = $el.find('.entry-title').text().trim() || 
-                          $el.find('img').attr('alt')?.replace(/^Image /, '') || 
-                          $el.find('.title').text().trim();
-            const poster = getImageUrl($el.find('img'));
-            const quality = $el.find('.Qlty').text().trim();
-            
-            if (title && link) {
-                freshDrops.push({
-                    id: extractIdFromUrl(link),
-                    title: sanitizeText(title),
-                    poster: poster,
-                    link: normalizeUrl(link),
-                    quality: quality || 'HD',
-                });
-            }
-        });
-
-        return freshDrops.slice(0, 20);
-    }
-
-    /**
-     * Extract Upcoming section
-     */
-    async extractUpcoming($) {
-        const upcoming = [];
-        
-        // Look for sections with "Upcoming" in the title using filter() instead of :has()
-        let section = $();
-        $('h3.section-title').each(function() {
-            if ($(this).text().toLowerCase().includes('upcoming')) {
-                section = $(this).closest('section');
-                return false;
-            }
-        });
-        
-        if (section.length === 0) {
-            // Try finding by iterating through all sections
-            $('section').each(function() {
-                if ($(this).find('h3.section-title').text().toLowerCase().includes('upcoming')) {
-                    section = $(this);
-                    return false;
-                }
-            });
-            return section.length ? this.extractSectionItems(section, $) : [];
-        }
-        
-        return this.extractSectionItems(section, $);
-    }
-
-    /**
-     * Extract On Air (Currently Airing) section
-     */
-    async extractOnAir($) {
-        const onAir = [];
-        
-        // Look for sections with "On-Air", "On Air", "Currently Airing" in the title
-        // The text might be inside an <a> tag within the h3
-        let section = $();
-        $('h3.section-title').each(function() {
-            const $h3 = $(this);
-            // Check both h3 text and text inside any <a> tags within h3
-            const h3Text = $h3.text().toLowerCase();
-            const aText = $h3.find('a').text().toLowerCase();
-            const combinedText = (h3Text + ' ' + aText).toLowerCase();
-            
-            if (combinedText.includes('on-air') || combinedText.includes('on air') || 
-                combinedText.includes('currently airing') || combinedText.includes('airing')) {
-                section = $h3.closest('section');
-                return false;
-            }
-        });
-        
-        if (section.length === 0) {
-            // Try alternative approach - search all section titles
-            $('section').each(function() {
-                const $sec = $(this);
-                const h3Text = $sec.find('h3.section-title').text().toLowerCase();
-                const aText = $sec.find('h3.section-title a').text().toLowerCase();
-                const combinedText = (h3Text + ' ' + aText).toLowerCase();
-                
-                if (combinedText.includes('on-air') || combinedText.includes('on air') || 
-                    combinedText.includes('airing')) {
-                    section = $sec;
-                    return false;
-                }
-            });
-        }
-        
-        if (section.length === 0) {
-            return onAir;
-        }
-        
-        // Extract items from the section
-        section.find('.swiper-slide .post').each((i, el) => {
-            const $el = $(el);
-            const link = $el.find('a.lnk-blk').attr('href') || $el.find('a').first().attr('href');
-            const title = $el.find('.entry-title').text().trim() || 
-                          $el.find('img').attr('alt')?.replace(/^Image /, '') || 
-                          $el.find('.title').text().trim();
-            const poster = getImageUrl($el.find('img'));
-            const quality = $el.find('.Qlty').text().trim();
-            
-            if (title && link) {
-                onAir.push({
-                    id: extractIdFromUrl(link),
-                    title: sanitizeText(title),
-                    poster: poster,
-                    link: normalizeUrl(link),
-                    quality: quality || 'HD',
-                });
-            }
-        });
-
-        return onAir.slice(0, 20);
-    }
-
-    /**
-     * Helper method to extract items from a section
-     */
-    extractSectionItems(container, $) {
+    extractRecentEpisodes($) {
         const items = [];
         
-        container.find('.post, article.post').each((i, el) => {
-            const $el = $(el);
-            const link = $el.find('a.lnk-blk').attr('href') || $el.find('a').first().attr('href');
-            const title = $el.find('.entry-title').text().trim() || 
-                          $el.find('img').attr('alt')?.replace(/^Image /, '') || 
-                          $el.find('.title').text().trim();
-            const poster = getImageUrl($el.find('img'));
-            const quality = $el.find('.Qlty').text().trim();
-            const year = $el.find('.year').text().trim();
-            
-            if (title && link) {
-                items.push({
-                    id: extractIdFromUrl(link),
-                    title: sanitizeText(title),
-                    poster: poster,
-                    link: normalizeUrl(link),
-                    quality: quality || 'HD',
-                    year: year || '',
-                });
+        let section = $();
+        
+        $('section, .widget').each(function() {
+            const title = $(this).find('.section-title, .widget-title, h3').text().toLowerCase();
+            if (title.includes('recent') && (title.includes('episode') || title.includes('update'))) {
+                section = $(this);
+                return false;
             }
         });
 
-        return items.slice(0, 20);
+        section.find('.post, .movies .tt').each((i, el) => {
+            const item = this.parseAnimeItem($(el));
+            if (item) items.push(item);
+        });
+
+        return items;
     }
 
     /**
-     * Extract latest movies and series
+     * Parse anime item with standardized structure
      */
-    async extractLatestMoviesSeries($) {
-        const latest = [];
-        
-        // Look for the latest movies/series swiper section
-        let section = $();
-        
-        // Try by ID first
-        section = $('#widget_list_movies_series-11');
-        
-        // If not found, search by section title text
-        if (section.length === 0) {
-            $('section').each(function() {
-                if ($(this).find('.section-title').text().includes('Latest Movies & Series')) {
-                    section = $(this);
-                    return false;
-                }
-            });
-        }
-        
-        if (section.length === 0) {
-            return [];
-        }
-        
-        section.find('.swiper-slide .post').each((i, el) => {
-            const $el = $(el);
-            const link = $el.find('a.lnk-blk').attr('href');
-            const title = $el.find('img').attr('alt')?.replace(/^Image /, '') ||
-                          $el.find('.entry-title').text().trim();
-            const poster = getImageUrl($el.find('img'));
-            
-            if (title && link) {
-                latest.push({
-                    id: extractIdFromUrl(link),
-                    title: sanitizeText(title),
-                    poster: poster,
-                    link: normalizeUrl(link),
-                });
-            }
-        });
+    parseAnimeItem($el) {
+        // Find link
+        const link = $el.find('a.lnk-blk').attr('href') ||
+                     $el.find('a[href*="/series/"]').attr('href') ||
+                     $el.find('a[href*="/movies/"]').attr('href') ||
+                     $el.find('a').first().attr('href');
 
-        return latest.slice(0, 20);
+        if (!link) return null;
+
+        // Extract title
+        let title = $el.find('.chart-title, .entry-title, .title').text().trim();
+        if (!title) {
+            title = $el.find('img').attr('alt')?.replace(/^Image /, '').trim();
+        }
+        if (!title) {
+            title = $el.clone().children().remove().end().text().trim().substring(0, 100);
+        }
+        if (!title) return null;
+
+        // Extract poster
+        const poster = this.extractPoster($el);
+
+        // Determine type
+        const type = link.includes('/movies/') ? 'movie' : 'series';
+
+        // Extract episode info
+        const episodeText = $el.find('.year, .episode, .ep-info').text().trim();
+        const nextEpisode = episodeText.match(/EP:?\s*(\d+[-/]?\d*)/i)?.[1] || null;
+
+        // Extract year
+        const yearMatch = $el.text().match(/\b(19|20)\d{2}\b/);
+        const year = yearMatch ? parseInt(yearMatch[0]) : new Date().getFullYear();
+
+        // Extract quality
+        let quality = 'HD';
+        const textLower = $el.text().toLowerCase();
+        if (textLower.includes('1080p')) quality = '1080p';
+        else if (textLower.includes('720p')) quality = '720p';
+        else if (textLower.includes('480p')) quality = '480p';
+
+        // Extract rating if available
+        const ratingMatch = $el.text().match(/(\d+\.?\d*)\s*\/\s*10|rating[:\s]*(\d+\.?\d*)/i);
+        const rating = ratingMatch ? parseFloat(ratingMatch[1] || ratingMatch[2]) : null;
+
+        // Determine status
+        let status = 'completed';
+        if ($el.text().toLowerCase().includes('airing') || 
+            $el.text().toLowerCase().includes('ongoing') ||
+            $el.find('.countdown-timer').length > 0) {
+            status = 'ongoing';
+        }
+
+        return {
+            id: extractIdFromUrl(link) || this.generateId(title),
+            title: sanitizeText(title),
+            poster: poster,
+            type: type,
+            year: year,
+            status: status,
+            lastEpisode: nextEpisode,
+            rating: rating,
+            quality: quality,
+            link: normalizeUrl(link),
+        };
     }
 
     /**
-     * Extract Fresh Cartoon Films section
+     * Extract poster image with lazy loading support
      */
-    async extractFreshCartoonFilms($) {
-        const cartoons = [];
+    extractPoster($el) {
+        const imgEl = $el.find('img').first();
         
-        // Look for Fresh Cartoon Films section
-        let section = $();
+        let src = imgEl.attr('data-src') || imgEl.attr('data-lazy-src');
+        if (src) return this.fixImageUrl(src);
         
-        // First try to find by class
-        section = $('section.movies');
+        src = imgEl.attr('src');
+        if (src) return this.fixImageUrl(src);
         
-        // If not found, search by section title text
-        if (section.length === 0) {
-            $('section').each(function() {
-                if ($(this).find('.section-title').text().toLowerCase().includes('fresh cartoon')) {
-                    section = $(this);
-                    return false;
-                }
-            });
+        const posterStyle = $el.find('[style*="background"], [style*="poster"]').attr('style');
+        if (posterStyle) {
+            const match = posterStyle.match(/url\(['"]?([^'")]+)['"]?\)/);
+            if (match) return this.fixImageUrl(match[1]);
         }
         
-        // Find the swiper slides container
-        const swiperSlides = section.find('.swiper-slide');
+        return '';
+    }
+
+    /**
+     * Fix image URLs
+     */
+    fixImageUrl(url) {
+        if (!url) return '';
+        if (url.startsWith('//')) return 'https:' + url;
+        if (!url.startsWith('http')) return 'https://' + url;
+        return url;
+    }
+
+    /**
+     * Generate ID from title
+     */
+    generateId(title) {
+        return title.toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, '');
+    }
+
+    /**
+     * Extract genre list for filters
+     */
+    extractGenreList($) {
+        const genres = new Set();
         
-        swiperSlides.find('.post').each((i, el) => {
-            const $el = $(el);
-            const link = $el.find('a.lnk-blk').attr('href');
-            const title = $el.find('img').attr('alt')?.replace(/^Image /, '') ||
-                          $el.find('.entry-title').text().trim();
-            const poster = getImageUrl($el.find('img'));
-            
-            if (title && link) {
-                cartoons.push({
-                    id: extractIdFromUrl(link),
-                    title: sanitizeText(title),
-                    poster: poster,
-                    link: normalizeUrl(link),
-                    type: 'cartoon',
-                });
-            }
+        $('a[href*="/category/genre/"]').each((i, el) => {
+            const name = $(el).text().trim();
+            if (name) genres.add(name);
         });
 
-        return cartoons.slice(0, 20);
+        // Add common genres if none found
+        if (genres.size === 0) {
+            const commonGenres = [
+                'Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 
+                'Horror', 'Isekai', 'Romance', 'Sci-Fi', 'Supernatural',
+                'Martial Arts', 'Mecha', 'Psychological', 'School', 'Shounen',
+                'Slice of Life', 'Sports', 'Thriller', 'Ecchi', 'Music'
+            ];
+            commonGenres.forEach(g => genres.add(g));
+        }
+
+        return Array.from(genres).sort();
+    }
+
+    /**
+     * Extract language list for filters
+     */
+    extractLanguageList($) {
+        const languages = new Set();
+        
+        $('a[href*="/category/language/"]').each((i, el) => {
+            const link = $(el).attr('href') || '';
+            const name = $(el).text().trim();
+            
+            if (link.includes('/language/')) {
+                const lang = link.split('/language/')[1]?.replace(/\//g, '') || name;
+                if (lang) languages.add(lang.charAt(0).toUpperCase() + lang.slice(1));
+            }
+            if (name) languages.add(name);
+        });
+
+        // Common languages from animesalt.cc
+        if (languages.size === 0) {
+            const commonLangs = [
+                'English', 'Hindi', 'Japanese', 'Tamil', 'Telugu', 
+                'Bengali', 'Malayalam', 'Kannada', 'Korean', 'Chinese'
+            ];
+            commonLangs.forEach(l => languages.add(l));
+        }
+
+        return Array.from(languages).sort();
+    }
+
+    /**
+     * Extract letter list for A-Z navigation
+     */
+    extractLetterList($) {
+        const letters = new Set();
+        
+        $('a[href*="/letter/"]').each((i, el) => {
+            const letter = $(el).text().trim();
+            if (letter) letters.add(letter);
+        });
+
+        // Add default letters if none found
+        if (letters.size === 0) {
+            '#ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(l => letters.add(l));
+        }
+
+        return Array.from(letters);
+    }
+
+    /**
+     * Extract network list for filters
+     */
+    extractNetworkList($) {
+        const networks = new Set();
+        
+        $('a[href*="/category/network/"]').each((i, el) => {
+            const link = $(el).attr('href') || '';
+            const name = $(el).text().trim() || $(el).find('img').attr('title') || '';
+            
+            if (link.includes('/network/')) {
+                const network = link.split('/network/')[1]?.replace(/\//g, '') || name;
+                if (network) {
+                    networks.add(network.charAt(0).toUpperCase() + network.slice(1));
+                }
+            }
+            if (name) networks.add(name);
+        });
+
+        // Common networks
+        if (networks.size === 0) {
+            const commonNetworks = [
+                'Crunchyroll', 'Netflix', 'Disney+', 'Prime Video', 
+                'Cartoon Network', 'HBO', 'Hulu'
+            ];
+            commonNetworks.forEach(n => networks.add(n));
+        }
+
+        return Array.from(networks).sort();
     }
 }
 
