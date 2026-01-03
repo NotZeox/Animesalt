@@ -1,60 +1,124 @@
-# Anime Salt API v2.0 Documentation
+# Anime Salt API v5.0 Documentation
 
 ## Table of Contents
 
 1. [Introduction](#introduction)
-2. [Base URL](#base-url)
-3. [Authentication](#authentication)
-4. [Rate Limiting](#rate-limiting)
-5. [Home Endpoints](#home-endpoints)
-6. [Info Endpoints](#info-endpoints)
-7. [Episode Endpoints](#episode-endpoints)
-8. [Stream Endpoints](#stream-endpoints)
-9. [Search Endpoints](#search-endpoints)
-10. [Category Endpoints](#category-endpoints)
-11. [Schedule Endpoints](#schedule-endpoints)
-12. [Utility Endpoints](#utility-endpoints)
-13. [Response Format](#response-format)
-14. [Error Handling](#error-handling)
-15. [Code Examples](#code-examples)
+2. [Landing Page](#landing-page)
+3. [Base URL](#base-url)
+4. [Authentication](#authentication)
+5. [Rate Limiting](#rate-limiting)
+6. [Standardized Response Format](#standardized-response-format)
+7. [Home Endpoints](#home-endpoints)
+8. [Info Endpoints](#info-endpoints)
+9. [Episode Endpoints](#episode-endpoints)
+10. [Stream Endpoints](#stream-endpoints)
+11. [Movies Endpoints](#movies-endpoints)
+12. [Cartoon Endpoints](#cartoon-endpoints)
+13. [Search Endpoints](#search-endpoints)
+14. [Category Endpoints](#category-endpoints)
+15. [Letter Endpoints](#letter-endpoints)
+16. [Schedule Endpoints](#schedule-endpoints)
+17. [Testing Endpoints](#testing-endpoints)
+18. [Error Handling](#error-handling)
+19. [Code Examples](#code-examples)
 
 ---
 
 ## Introduction
 
-Anime Salt API is a professional REST API that scrapes and provides comprehensive anime data from animesalt.cc. The API is designed to deliver rich metadata including anime details, episodes, streaming links, genres, and more in a structured format inspired by industry-standard APIs.
+Anime Salt API is a professional REST API that scrapes and provides comprehensive anime data from animesalt.cc. The API delivers rich metadata including anime details, episodes, streaming links, genres, movies, and cartoons in a structured, standardized format.
+
+### Key Statistics
+
+| Metric | Value |
+|--------|-------|
+| Total Episodes | 6,060+ |
+| Series Available | 342+ |
+| Movies | 124+ |
+| API Endpoints | 25+ |
 
 ### Features
 
-- Comprehensive anime metadata extraction
-- Multi-language support (Hindi, Tamil, Telugu, Bengali, Malayalam, Kannada, English, Japanese, Korean)
-- Episode streaming link extraction with multiple servers
-- Search functionality with autocomplete suggestions
+- Comprehensive anime metadata extraction with standardized formats
+- Multi-language support (Hindi, Tamil, Telugu, Bengali, Malayalam, Kannada, English, Japanese, Korean, Chinese)
+- Episode streaming link extraction with multiple servers (StreamSB, Mp4Upload)
+- Advanced search functionality with pagination
 - Genre, network, and language categorization
 - In-memory caching for improved performance
-- Rate limiting for fair usage
-- Professional data format with consistent structure
+- Smart recommendations based on content type
+- High-quality w1280 backdrop images for spotlights
+- Fresh Drops extraction with episode ranges
+- Professional data format with consistent JSON structure
+- Sub-only filtering for accurate content availability
 
 ### Version
 
-- **Current Version**: 2.0.0
-- **Last Updated**: December 2025
+- **Current Version**: 5.1.0 (Production Edition)
+- **Last Updated**: January 2026
+- **Status**: Production Ready
+
+---
+
+## Landing Page
+
+The API features a beautifully designed landing page at the root URL (`/`) that provides a modern interface for developers and users.
+
+### Landing Page URL
+
+```
+https://your-api-domain.com/
+```
+
+### Landing Page Features
+
+The landing page includes:
+
+- **Hero Section**: Modern design with the AnimeSalt API branding in a lime green color scheme
+- **Statistics Display**: Shows key API metrics (6,060+ episodes, 342+ series, 124+ movies, 25+ endpoints)
+- **Quick Actions**: Direct links to Documentation and API testing
+- **Feature Highlights**: Overview of production-grade capabilities
+- **Endpoint Preview**: Interactive endpoint cards with HTTP method badges
+- **Responsive Design**: Fully responsive layout for all devices
+- **Smooth Animations**: Fade-in effects and hover interactions
+- **Lime Theme**: Professional green color palette with glow effects
+
+### Navigation
+
+The landing page includes a fixed navigation bar with quick links to:
+
+- Features section
+- Endpoints section
+- Documentation (`/docs`)
+- Source site (animesalt.cc)
+
+### Quick Links from Landing Page
+
+| Link | Destination | Description |
+|------|-------------|-------------|
+| Read Documentation | `/docs` | Interactive API documentation |
+| Try API Now | `/api/home` | Test the home endpoint |
+| Features | `#features` | Feature highlights section |
+| Endpoints | `#endpoints` | Available API endpoints |
 
 ---
 
 ## Base URL
 
 ```
-https://localhost:4000/api
+https://your-domain.com/api
 ```
 
-For production deployment, replace `localhost:4000` with your server domain and port.
+All API endpoints are accessed relative to this base URL. For local development:
+
+```
+http://localhost:3000/api
+```
 
 ---
 
 ## Authentication
 
-No authentication is required for this API. All endpoints are publicly accessible.
+No authentication is required for this API. All endpoints are publicly accessible and free to use.
 
 ---
 
@@ -68,6 +132,45 @@ The API implements rate limiting to ensure fair usage and server stability.
 
 ---
 
+## Standardized Response Format
+
+All API responses now follow a consistent JSON structure with proper status codes and data encapsulation.
+
+### Success Response
+
+```json
+{
+    "success": true,
+    "statusCode": 200,
+    "data": {
+        // Endpoint-specific data
+    },
+    "timestamp": "2026-01-03T00:00:00.000Z"
+}
+```
+
+### Error Response
+
+```json
+{
+    "success": false,
+    "statusCode": 400,
+    "message": "Error message description"
+}
+```
+
+### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| success | boolean | Indicates if the request was successful |
+| statusCode | number | HTTP status code (200, 400, 404, 500) |
+| data | object | Response payload (success responses only) |
+| message | string | Human-readable message (error responses only) |
+| timestamp | string | ISO 8601 timestamp of the response |
+
+---
+
 ## Home Endpoints
 
 ### GET /api/home
@@ -78,195 +181,88 @@ Retrieves complete homepage data including spotlights, trending anime, top serie
 
 **Example Request**:
 ```bash
-curl "https://localhost:4000/api/home"
+curl "https://your-domain.com/api/home"
 ```
 
 **Example Response**:
 ```json
 {
-  "success": true,
-  "cached": false,
-  "results": {
-    "spotlights": [
-      {
-        "id": "demon-slayer-kimetsu-no-yaiba-entertainment-district-arc",
-        "title": "Demon Slayer: Kimetsu no Yaiba - Entertainment District Arc",
-        "poster": "https://image.tmdb.org/t/p/w500/t9R8Z16f9j9DqK48fHHVKMnD5pA.jpg",
-        "link": "https://animesalt.cc/series/demon-slayer-kimetsu-no-yaiba-entertainment-district-arc/",
-        "japanese_title": "鬼滅の刃 遊郭編",
-        "description": "After Enmu's defeat, Tanjiro and his allies receive a new mission...",
-        "tvInfo": {
-          "showType": "TV",
-          "duration": "24 min",
-          "quality": "HD"
-        }
-      }
-    ],
-    "trending": [
-      {
-        "id": "naruto-shippuden",
-        "number": 1,
-        "title": "Naruto Shippuden",
-        "poster": "https://image.tmdb.org/t/p/w500/kV27j3Nz4d5z8u6mN3EJw9RiLg2.jpg",
-        "link": "https://animesalt.cc/series/naruto-shippuden/",
-        "japanese_title": "ナルト -疾風伝-"
-      },
-      {
-        "id": "kaiju-no-8",
-        "number": 2,
-        "title": "Kaiju No. 8",
-        "poster": "https://image.tmdb.org/t/p/w500/g4Da5pToG1E0moyaMhP4RewTBCl.jpg",
-        "link": "https://animesalt.cc/series/kaiju-no-8/",
-        "japanese_title": ""
-      }
-    ],
-    "topSeries": [
-      {
-        "id": "naruto-shippuden",
-        "number": 1,
-        "title": "Naruto Shippuden",
-        "poster": "https://image.tmdb.org/t/p/w500/kV27j3Nz4d5z8u6mN3EJw9RiLg2.jpg",
-        "link": "https://animesalt.cc/series/naruto-shippuden/",
-        "japanese_title": "ナルト -疾風伝-"
-      }
-    ],
-    "topMovies": [
-      {
-        "id": "your-name",
-        "number": 1,
-        "title": "Your Name",
-        "poster": "https://image.tmdb.org/t/p/w500/q719jXXEzOoYaps6babgKnONONX.jpg",
-        "link": "https://animesalt.cc/movies/your-name/",
-        "japanese_title": "君の名は。",
-        "showType": "Movie"
-      }
-    ],
-    "recentEpisodes": [
-      {
-        "id": "naruto-shippuden-1x32",
-        "title": "The Fourth Great Ninja War Begins",
-        "poster": "https://img.animesalt.com/images/12032/032.webp",
-        "link": "https://animesalt.cc/episode/naruto-shippuden-1x32/",
-        "episode": "32"
-      }
-    ],
-    "networks": [
-      {
-        "id": "pierrot",
-        "name": "Studio Pierrot",
-        "logo": "https://animesalt.cc/wp-content/uploads/pierrot-logo.png",
-        "link": "https://animesalt.cc/category/network/pierrot/"
-      },
-      {
-        "id": "ufotable",
-        "name": "Ufotable",
-        "logo": "https://animesalt.cc/wp-content/uploads/ufotable-logo.png",
-        "link": "https://animesalt.cc/category/network/ufotable/"
-      }
-    ],
-    "languages": [
-      {
-        "code": "hindi",
-        "name": "Hindi",
-        "native": "हिन्दी",
-        "link": "https://animesalt.cc/category/language/hindi/"
-      },
-      {
-        "code": "tamil",
-        "name": "Tamil",
-        "native": "தமிழ்",
-        "link": "https://animesalt.cc/category/language/tamil/"
-      },
-      {
-        "code": "telugu",
-        "name": "Telugu",
-        "native": "తెలుగు",
-        "link": "https://animesalt.cc/category/language/telugu/"
-      }
-    ],
-    "genres": [
-      {
-        "name": "Action",
-        "link": "https://animesalt.cc/category/genre/action/"
-      },
-      {
-        "name": "Adventure",
-        "link": "https://animesalt.cc/category/genre/adventure/"
-      },
-      {
-        "name": "Comedy",
-        "link": "https://animesalt.cc/category/genre/comedy/"
-      }
-    ]
-  }
-}
-```
-
----
-
-### GET /api/top-ten
-
-Retrieves top 10 anime rankings categorized by time period.
-
-**Parameters**: None required
-
-**Example Request**:
-```bash
-curl "https://localhost:4000/api/top-ten"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": {
-    "topTen": {
-      "today": [
-        {
-          "id": "naruto-shippuden",
-          "number": 1,
-          "title": "Naruto Shippuden",
-          "poster": "https://image.tmdb.org/t/p/w500/kV27j3Nz4d5z8u6mN3EJw9RiLg2.jpg",
-          "link": "https://animesalt.cc/series/naruto-shippuden/",
-          "tvInfo": {
-            "showType": "TV",
-            "duration": "24 min",
-            "quality": "HD"
-          }
-        }
-      ],
-      "week": [
-        {
-          "id": "demon-slayer",
-          "number": 1,
-          "title": "Demon Slayer",
-          "poster": "https://image.tmdb.org/t/p/w500/mnpgxMLvUJYSXwydB5E1dqLukwy.jpg",
-          "link": "https://animesalt.cc/series/demon-slayer/",
-          "tvInfo": {
-            "showType": "TV",
-            "duration": "24 min",
-            "quality": "HD"
-          }
-        }
-      ],
-      "month": [
-        {
-          "id": "solo-leveling",
-          "number": 1,
-          "title": "Solo Leveling",
-          "poster": "https://image.tmdb.org/t/p/w500/rsOApVLbIQEcNkqSlOxNPyg3FyI.jpg",
-          "link": "https://animesalt.cc/series/solo-leveling/",
-          "tvInfo": {
-            "showType": "TV",
-            "duration": "24 min",
-            "quality": "HD"
-          }
-        }
-      ]
+    "success": true,
+    "statusCode": 200,
+    "data": {
+        "spotlights": [
+            {
+                "id": "naruto-shippuden",
+                "title": "Naruto Shippuden",
+                "poster": "https://image.tmdb.org/t/p/w500/kV27j3Nz4d5z8u6mN3EJw9RiLg2.jpg",
+                "backdrop": "<div class=\"bghd\"><img class=\"TPostBg lazyloaded\" data-src=\"https://image.tmdb.org/t/p/w1280/kV27j3Nz4d5z8u6mN3EJw9RiLg2.jpg\" alt=\"Naruto Shippuden\" src=\"https://image.tmdb.org/t/p/w1280/kV27j3Nz4d5z8u6mN3EJw9RiLg2.jpg\"></div>",
+                "url": "https://animesalt.cc/series/naruto-shippuden/",
+                "type": "SERIES",
+                "ranking": 1,
+                "source": "Most Watched Series"
+            }
+        ],
+        "trending": [
+            {
+                "id": "one-piece",
+                "number": 1,
+                "title": "One Piece",
+                "poster": "https://image.tmdb.org/t/p/w500/...",
+                "url": "https://animesalt.cc/series/one-piece/"
+            }
+        ],
+        "freshDrops": [
+            {
+                "id": "naruto-shippuden",
+                "title": "Naruto Shippuden",
+                "poster": "https://image.tmdb.org/t/p/w500/...",
+                "url": "https://animesalt.cc/series/naruto-shippuden/",
+                "type": "SERIES",
+                "season": 15,
+                "episode": 468,
+                "latestEpisode": 467
+            }
+        ],
+        "upcomingEpisodes": [
+            {
+                "id": "dragon-ball-super",
+                "title": "Dragon Ball Super",
+                "poster": "https://image.tmdb.org/t/p/w500/...",
+                "url": "https://animesalt.cc/series/dragon-ball-super/",
+                "type": "SERIES",
+                "nextEpisode": 170,
+                "countdown": "5h 14m"
+            }
+        ],
+        "networks": [],
+        "languages": [],
+        "genres": []
     }
-  }
 }
 ```
+
+**Field Descriptions**:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| spotlights | Array | Featured anime with HTML backdrop wrapper scraped from watch pages (max 10 items, mixed from trending) |
+| trending | Array | Top 10 trending anime with episode info |
+| freshDrops | Array | Newly dubbed anime with season and episode ranges for tracking new releases |
+| upcomingEpisodes | Array | Upcoming episodes with countdown timers showing time until release |
+| networks | Array | Streaming networks with SVG icons |
+| languages | Array | Available dub languages with flags |
+| genres | Array | Anime genres with icons |
+
+### Spotlight Backdrop Extraction
+
+The spotlight backdrops are now extracted directly from each item's watch page by:
+
+1. **Individual Page Visits**: Each spotlight item's URL is visited to fetch the actual watch page
+2. **bghd Element Extraction**: The `<div class="bghd">` element is parsed from the page HTML
+3. **Parallel Processing**: All 10 watch pages are fetched concurrently using Promise.all for optimal performance
+4. **Fallback Generation**: If a watch page cannot be fetched, the API falls back to generating a backdrop from the poster image
+
+This ensures that spotlight backdrops match exactly what users see on animesalt.cc, including any styling, lazy-loading attributes, and image URLs used by the source website.
 
 ---
 
@@ -284,99 +280,55 @@ Retrieves detailed information about a specific anime.
 
 **Example Request**:
 ```bash
-curl "https://localhost:4000/api/info?id=naruto-shippuden"
+curl "https://your-domain.com/api/info?id=naruto-shippuden"
 ```
 
 **Example Response**:
 ```json
 {
-  "success": true,
-  "cached": false,
-  "results": {
+    "success": true,
+    "statusCode": 200,
     "data": {
-      "id": "naruto-shippuden",
-      "data_id": 768748400,
-      "title": "Naruto Shippuden",
-      "japanese_title": "ナルト -疾風伝-",
-      "poster": "https://image.tmdb.org/t/p/w342/kV27j3Nz4d5z8u6mN3EJw9RiLg2.jpg",
-      "synopsis": "Naruto Uzumaki is a young shinobi who has a monstrous sealed beast within him known as the Nine-Tails. Treated as a pariah by the villagers, Naruto dreams of becoming the strongest ninja and becoming the Hokage, the village's leader. The story follows Naruto's journey as he trains and forms new bonds while encountering many enemies and challenges along the way.",
-      "showType": "TV",
-      "animeInfo": {
-        "type": "TV Series",
-        "status": "Completed",
-        "aired": "Feb 2007 - Mar 2017",
-        "premiered": "Winter 2007",
-        "duration": "24 min per ep",
-        "MAL_score": "8.2"
-      },
-      "genres": [
-        {
-          "name": "Action",
-          "link": "https://animesalt.cc/category/genre/action/"
-        },
-        {
-          "name": "Adventure",
-          "link": "https://animesalt.cc/category/genre/adventure/"
-        },
-        {
-          "name": "Fantasy",
-          "link": "https://animesalt.cc/category/genre/fantasy/"
-        },
-        {
-          "name": "Shounen",
-          "link": "https://animesalt.cc/category/genre/shounen/"
-        }
-      ],
-      "networks": [
-        {
-          "name": "Studio Pierrot",
-          "link": "https://animesalt.cc/category/network/pierrot/"
-        }
-      ],
-      "tvInfo": {
+        "id": "naruto-shippuden",
+        "data_id": 768748400,
+        "title": "Naruto Shippuden",
+        "japanese_title": "",
+        "poster": "https://image.tmdb.org/t/p/w500/kV27j3Nz4d5z8u6mN3EJw9RiLg2.jpg",
+        "synopsis": "It has been two and a half years since Naruto Uzumaki left Konohagakure...",
         "showType": "TV",
-        "duration": "24 min",
-        "releaseDate": "Feb 2007",
-        "quality": "HD",
-        "sub": 500,
-        "dub": 500,
-        "eps": 500
-      },
-      "seasons": [],
-      "episodes": [
-        {
-          "episode_no": 1,
-          "id": "1x1",
-          "data_id": 537000466,
-          "title": "Homecoming",
-          "link": "https://animesalt.cc/episode/naruto-shippuden-1x1/",
-          "poster": "https://img.animesalt.com/images/12032/001.webp",
-          "japanese_title": ""
-        }
-      ],
-      "related_data": [],
-      "recommended_data": []
+        "animeInfo": {
+            "duration": "24 min",
+            "status": "Completed",
+            "released": "2007"
+        },
+        "genres": [
+            {
+                "name": "Action",
+                "icon": "⚔️",
+                "link": "https://animesalt.cc/category/genre/action/"
+            }
+        ],
+        "tvInfo": {
+            "showType": "TV",
+            "duration": "24 min",
+            "releaseDate": "2007",
+            "quality": "HD",
+            "sub": 500,
+            "dub": 0,
+            "eps": 500
+        },
+        "seasons": [
+            {
+                "id": "season-1",
+                "title": "Season 1",
+                "total_episodes": 23,
+                "episode_range": "1-23"
+            }
+        ],
+        "relatedAnime": []
     }
-  }
 }
 ```
-
-**Field Descriptions**:
-
-| Field | Type | Description |
-|-------|------|-------------|
-| id | string | Unique anime identifier (slug format) |
-| data_id | number | Numeric identifier derived from anime ID |
-| title | string | English title of the anime |
-| japanese_title | string | Original Japanese title |
-| poster | string | URL to the anime poster image |
-| synopsis | string | Plot summary and description |
-| showType | string | Type of anime (TV, Movie, OVA, etc.) |
-| animeInfo | object | Detailed metadata (duration, status, score, etc.) |
-| genres | array | List of genre objects with name and link |
-| networks | array | List of studio/network objects |
-| tvInfo | object | TV information including episode counts |
-| episodes | array | List of available episodes |
 
 ---
 
@@ -388,48 +340,7 @@ Retrieves information about a randomly selected anime.
 
 **Example Request**:
 ```bash
-curl "https://localhost:4000/api/random"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": {
-    "data": {
-      "id": "attack-on-titan",
-      "data_id": 892374561,
-      "title": "Attack on Titan",
-      "japanese_title": "進撃の巨人",
-      "poster": "https://image.tmdb.org/t/p/w500/hTP1DtLGFamjfu8WqjnuQdP1n4i.jpg",
-      "link": "https://animesalt.cc/series/attack-on-titan/",
-      "synopsis": "Centuries ago, mankind was slaughtered to near extinction by monstrous, humanoid Titans. Eren Yeager vows to kill every last one of them as the world comes under attack.",
-      "showType": "TV",
-      "animeInfo": {
-        "type": "TV Series",
-        "status": "Ongoing",
-        "MAL_score": "9.0"
-      },
-      "genres": [
-        {
-          "name": "Action",
-          "link": "https://animesalt.cc/category/genre/action/"
-        },
-        {
-          "name": "Drama",
-          "link": "https://animesalt.cc/category/genre/drama/"
-        }
-      ],
-      "tvInfo": {
-        "showType": "TV",
-        "duration": "24 min",
-        "quality": "HD",
-        "eps": 0
-      },
-      "episodes": []
-    }
-  }
-}
+curl "https://your-domain.com/api/random"
 ```
 
 ---
@@ -438,64 +349,56 @@ curl "https://localhost:4000/api/random"
 
 ### GET /api/episodes
 
-Retrieves the complete episode list for a specific anime with pagination support.
+Retrieves the complete episode list for a specific anime.
 
 **Parameters**:
 
-| Parameter | Type | Required | Description | Default |
-|-----------|------|----------|-------------|---------|
-| id | string | Yes | The anime ID (slug format) | - |
-| page | number | No | Page number for pagination | 1 |
-| pageSize | number | No | Number of episodes per page | 50 |
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| id | string | Yes | The anime ID (slug format) |
 
 **Example Request**:
 ```bash
-curl "https://localhost:4000/api/episodes?id=naruto-shippuden&page=1&pageSize=20"
+curl "https://your-domain.com/api/episodes?id=naruto-shippuden"
 ```
 
 **Example Response**:
 ```json
 {
-  "success": true,
-  "cached": true,
-  "results": {
-    "totalEpisodes": 500,
-    "currentPage": 1,
-    "totalPages": 25,
-    "episodes": [
-      {
-        "episode_no": 1,
-        "id": "1x1",
-        "data_id": 537000466,
-        "title": "Homecoming",
-        "link": "https://animesalt.cc/episode/naruto-shippuden-1x1/",
-        "poster": "https://img.animesalt.com/images/12032/001.webp",
-        "japanese_title": ""
-      },
-      {
-        "episode_no": 2,
-        "id": "1x2",
-        "data_id": 537000497,
-        "title": "The Akatsuki Makes Its Move",
-        "link": "https://animesalt.cc/episode/naruto-shippuden-1x2/",
-        "poster": "https://img.animesalt.com/images/12032/002.webp",
-        "japanese_title": ""
-      },
-      {
-        "episode_no": 3,
-        "id": "1x3",
-        "data_id": 537000528,
-        "title": "The Results of Training",
-        "link": "https://animesalt.cc/episode/naruto-shippuden-1x3/",
-        "poster": "https://img.animesalt.com/images/12032/003.webp",
-        "japanese_title": ""
-      }
-    ]
-  }
+    "success": true,
+    "statusCode": 200,
+    "data": {
+        "id": "naruto-shippuden",
+        "totalEpisodes": 500,
+        "totalSeasons": 1,
+        "totalSeasonsCount": 1,
+        "totalEpisodesCount": 500,
+        "allSeasons": [
+            {
+                "season": 1,
+                "title": "Season 1",
+                "episodeCount": 500,
+                "name": "Season 1"
+            }
+        ],
+        "episodes": [
+            {
+                "id": "naruto-shippuden-season-1-episode-1",
+                "season": 1,
+                "episode": 1,
+                "episodeLabel": "1xEP:1",
+                "url": "https://animesalt.cc/series/naruto-shippuden?season=1&episode=1",
+                "hasSub": true,
+                "hasDub": false,
+                "hasRegionalDub": false,
+                "isGrayedOut": true,
+                "releaseDate": null,
+                "isPlaceholder": true
+            }
+        ]
+    }
 }
 ```
-
-**Episode ID Format**: Episodes are identified using the format `{season}x{episode}` (e.g., `1x1`, `1x2`, `2x1`). This format clearly indicates the season and episode number.
 
 ---
 
@@ -510,175 +413,162 @@ Retrieves streaming links and video sources for a specific episode.
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | id | string | Yes | The anime ID (slug format) |
-| episode | string | Yes | Episode identifier in format `1x1` |
-| server | string | No | Specific server name (optional) |
+| episode | string | Yes | Episode number or format (e.g., `1` or `1x1`) |
 
 **Example Request**:
 ```bash
-curl "https://localhost:4000/api/stream?id=naruto-shippuden&episode=1x1"
+# Simple episode format
+curl "https://your-domain.com/api/stream?id=naruto-shippuden&episode=1"
+
+# Season x Episode format (Recommended)
+curl "https://your-domain.com/api/stream?id=naruto-shippuden&episode=1x1"
 ```
 
 **Example Response**:
 ```json
 {
-  "success": true,
-  "results": {
-    "streamingLink": [
-      {
-        "id": "abc12345",
-        "server": "Server 1",
-        "type": "iframe",
-        "link": {
-          "file": "https://play.zephyrflick.top/video/49182f81e6a13cf5eaa496d51fea6406",
-          "type": "iframe"
-        },
-        "tracks": [
-          {
-            "file": "https://animesalt.cc/subtitles/en.vtt",
-            "label": "English",
-            "kind": "subtitles",
-            "default": true
-          }
+    "success": true,
+    "statusCode": 200,
+    "data": {
+        "episodeId": "naruto-shippuden-2x34",
+        "episodeName": "Formation! New Team Kakashi!",
+        "episodeNumber": 34,
+        "seasonNumber": 2,
+        "url": "https://animesalt.cc/episode/naruto-shippuden-2x34/",
+        "hasSub": true,
+        "hasDub": true,
+        "isDualAudio": true,
+        "isRegional": false,
+        "language": "hindi",
+        "players": [
+            {
+                "player": "HD 1 (Sub)",
+                "url": "https://play.zephyrflick.top/video/...",
+                "type": "iframe",
+                "quality": "auto",
+                "isSub": true,
+                "isDub": false
+            }
         ],
-        "intro": null,
-        "outro": null
-      },
-      {
-        "id": "def67890",
-        "server": "Language Server 1",
-        "type": "multi-lang",
-        "link": {
-          "file": "https://short.icu/JPRG69Z",
-          "type": "iframe"
-        },
-        "tracks": [],
-        "intro": null,
-        "outro": null
-      }
-    ],
-    "servers": [
-      {
-        "id": "1",
-        "name": "ZephyrFlick",
-        "type": "sub"
-      },
-      {
-        "id": "2",
-        "name": "Multi-Language",
-        "type": "multi"
-      }
-    ],
-    "availableServers": [
-      {
-        "server_id": 1,
-        "server_name": "ZephyrFlick",
-        "type": "sub"
-      },
-      {
-        "server_id": 2,
-        "server_name": "Multi-Language",
-        "type": "multi"
-      }
-    ]
-  }
+        "relatedAnime": [],
+        "totalPlayers": 1
+    }
 }
 ```
 
-**Field Descriptions**:
+**Response Fields**:
 
 | Field | Type | Description |
 |-------|------|-------------|
-| streamingLink | array | List of available streaming sources |
-| streamingLink.id | string | Unique identifier for the stream |
-| streamingLink.server | string | Server name |
-| streamingLink.link.file | string | URL to the video player/embed |
-| streamingLink.link.type | string | Type of link (iframe, hls, video/mp4) |
-| streamingLink.tracks | array | Subtitle and caption tracks |
-| servers | array | Available server options |
-| availableServers | array | Detailed server information |
+| episodeId | string | Unique episode identifier |
+| episodeName | string | Episode title |
+| episodeNumber | number | Episode number within season |
+| seasonNumber | number | Season number |
+| hasSub | boolean | Subtitle version available |
+| hasDub | boolean | Dubbed version available |
+| isDualAudio | boolean | Both sub and dub available |
+| players | Array | Streaming player links |
 
 ---
 
-### GET /api/stream/fallback
+## Movies Endpoints
 
-Retrieves fallback streaming links when primary servers are unavailable.
+### GET /api/movies
+
+Retrieves a paginated list of anime movies.
 
 **Parameters**:
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| id | string | Yes | The anime ID (slug format) |
-| episode | string | Yes | Episode identifier in format `1x1` |
-| server | string | No | Preferred fallback server |
+| Parameter | Type | Required | Description | Default |
+|-----------|------|----------|-------------|---------|
+| page | number | No | Page number | 1 |
 
 **Example Request**:
 ```bash
-curl "https://localhost:4000/api/stream/fallback?id=naruto-shippuden&episode=1x1"
+curl "https://your-domain.com/api/movies?page=1"
 ```
 
 **Example Response**:
 ```json
 {
-  "success": true,
-  "results": {
-    "streamingLink": [
-      {
-        "id": "xyz99999",
-        "server": "Fallback Server 1",
-        "type": "iframe",
-        "link": {
-          "file": "https://backup-stream.example.com/embed/abc123",
-          "type": "iframe"
-        },
-        "tracks": []
-      }
-    ],
-    "servers": [
-      {
-        "id": "1",
-        "name": "Backup Server",
-        "type": "sub"
-      }
-    ]
-  }
-}
-```
-
----
-
-### GET /api/servers
-
-Retrieves available streaming servers for a specific anime episode.
-
-**Parameters**:
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| id | string | Yes | The anime ID (slug format) |
-| episode | string | No | Episode identifier (optional) |
-
-**Example Request**:
-```bash
-curl "https://localhost:4000/api/servers?id=naruto-shippuden&episode=1x1"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": [
-    {
-      "id": "1",
-      "name": "ZephyrFlick",
-      "type": "sub"
-    },
-    {
-      "id": "2",
-      "name": "Multi-Language",
-      "type": "multi"
+    "success": true,
+    "statusCode": 200,
+    "data": {
+        "page": 1,
+        "totalPages": 5,
+        "totalResults": 124,
+        "results": [
+            {
+                "id": "jujutsu-kaisen-0",
+                "title": "Jujutsu Kaisen 0",
+                "poster": "https://image.tmdb.org/t/p/w500/...",
+                "link": "https://animesalt.cc/movies/jujutsu-kaisen-0/",
+                "type": "MOVIE"
+            }
+        ]
     }
-  ]
 }
+```
+
+---
+
+### GET /api/movie
+
+Retrieves detailed information about a specific movie.
+
+**Parameters**:
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| id | string | Yes | The movie ID (slug format) |
+
+**Example Request**:
+```bash
+curl "https://your-domain.com/api/movie?id=jujutsu-kaisen-0"
+```
+
+---
+
+### GET /api/movie/stream
+
+Retrieves streaming links for a specific movie.
+
+**Parameters**:
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| id | string | Yes | The movie ID (slug format) |
+
+**Example Request**:
+```bash
+curl "https://your-domain.com/api/movie/stream?id=jujutsu-kaisen-0"
+```
+
+---
+
+## Cartoon Endpoints
+
+### GET /api/cartoon
+
+Retrieves cartoons with optional type filtering.
+
+**Parameters**:
+
+| Parameter | Type | Required | Description | Default |
+|-----------|------|----------|-------------|---------|
+| type | string | No | Filter type (`series`, `movies`, `shorts`, `specials`, `crossovers`) | all |
+| page | number | No | Page number | 1 |
+
+**Example Request**:
+```bash
+# Get all cartoons
+curl "https://your-domain.com/api/cartoon"
+
+# Get only cartoon series
+curl "https://your-domain.com/api/cartoon?type=series"
+
+# Get cartoon movies
+curl "https://your-domain.com/api/cartoon?type=movies"
 ```
 
 ---
@@ -694,402 +584,33 @@ Searches for anime by keyword with pagination support.
 | Parameter | Type | Required | Description | Default |
 |-----------|------|----------|-------------|---------|
 | q | string | Yes | Search keyword | - |
-| keyword | string | Yes | Alternative parameter for search keyword | - |
-| page | number | No | Page number for pagination | 1 |
-| pageSize | number | No | Results per page | 20 |
-
-**Example Request**:
-```bash
-curl "https://localhost:4000/api/search?q=naruto&page=1&pageSize=10"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": {
-    "keyword": "naruto",
-    "totalResults": 5,
-    "data": [
-      {
-        "id": "naruto-shippuden",
-        "data_id": 768748400,
-        "title": "Naruto Shippuden",
-        "japanese_title": "ナルト -疾風伝-",
-        "poster": "https://image.tmdb.org/t/p/w500/kV27j3Nz4d5z8u6mN3EJw9RiLg2.jpg",
-        "link": "https://animesalt.cc/series/naruto-shippuden/",
-        "tvInfo": {
-          "showType": "TV",
-          "duration": "24 min"
-        }
-      },
-      {
-        "id": "naruto",
-        "data_id": 123456789,
-        "title": "Naruto",
-        "japanese_title": "ナルト",
-        "poster": "https://image.tmdb.org/t/p/w500/xppeysfvDKVx775MFuH8Z9BlpMk.jpg",
-        "link": "https://animesalt.cc/series/naruto/",
-        "tvInfo": {
-          "showType": "TV",
-          "duration": "24 min"
-        }
-      },
-      {
-        "id": "boruto-naruto-next-generations",
-        "data_id": 987654321,
-        "title": "Boruto: Naruto Next Generations",
-        "japanese_title": "BORUTO- NARUTO NEXT GENERATIONS",
-        "poster": "https://image.tmdb.org/t/p/w500/zL8fHe5XlbOgSC7OR9wSaJdHWCC.jpg",
-        "link": "https://animesalt.cc/series/boruto-naruto-next-generations/",
-        "tvInfo": {
-          "showType": "TV",
-          "duration": "24 min"
-        }
-      }
-    ],
-    "pagination": {
-      "currentPage": 1,
-      "totalPages": 1,
-      "totalItems": 5,
-      "itemsPerPage": 10,
-      "hasNext": false,
-      "hasPrev": false
-    }
-  }
-}
-```
-
----
-
-### GET /api/search/suggest
-
-Retrieves search suggestions for autocomplete functionality.
-
-**Parameters**:
-
-| Parameter | Type | Required | Description | Default |
-|-----------|------|----------|-------------|---------|
-| q | string | Yes | Search keyword (min 2 characters) | - |
-| keyword | string | Yes | Alternative parameter | - |
-| limit | number | No | Maximum number of suggestions | 10 |
-
-**Example Request**:
-```bash
-curl "https://localhost:4000/api/search/suggest?q=demon"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": [
-    {
-      "id": "demon-slayer",
-      "title": "Demon Slayer: Kimetsu no Yaiba",
-      "poster": "https://image.tmdb.org/t/p/w500/mnpgxMLvUJYSXwydB5E1dqLukwy.jpg",
-      "link": "https://animesalt.cc/series/demon-slayer/",
-      "releaseDate": "2019",
-      "showType": "TV",
-      "duration": "24 min"
-    },
-    {
-      "id": "demon-slayer-kimetsu-no-yaiba-movie-mugen-train",
-      "title": "Demon Slayer: Kimetsu no Yaiba - The Movie: Mugen Train",
-      "poster": "https://image.tmdb.org/t/p/w500/h8RbNnNPj4yOgsq9EUWkH6H3qZw.jpg",
-      "link": "https://animesalt.cc/movies/demon-slayer-kimetsu-no-yaiba-movie-mugen-train/",
-      "releaseDate": "2020",
-      "showType": "Movie",
-      "duration": "117 min"
-    }
-  ]
-}
-```
-
----
-
-### GET /api/top-search
-
-Retrieves popular search terms.
-
-**Parameters**: None required
-
-**Example Request**:
-```bash
-curl "https://localhost:4000/api/top-search"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": [
-    {
-      "title": "Naruto Shippuden",
-      "link": "https://animesalt.cc/series/naruto-shippuden/"
-    },
-    {
-      "title": "One Piece",
-      "link": "https://animesalt.cc/series/one-piece/"
-    },
-    {
-      "title": "Dragon Ball Super",
-      "link": "https://animesalt.cc/series/dragon-ball-super/"
-    }
-  ]
-}
-```
-
----
-
-## Category Endpoints
-
-### GET /api/series
-
-Retrieves a paginated list of TV series anime.
-
-**Parameters**:
-
-| Parameter | Type | Required | Description | Default |
-|-----------|------|----------|-------------|---------|
 | page | number | No | Page number | 1 |
 
 **Example Request**:
 ```bash
-curl "https://localhost:4000/api/series?page=1"
+curl "https://your-domain.com/api/search?q=naruto&page=1"
 ```
 
 **Example Response**:
 ```json
 {
-  "success": true,
-  "results": {
-    "type": "series",
-    "page": 1,
-    "data": [
-      {
-        "id": "naruto-shippuden",
-        "title": "Naruto Shippuden",
-        "japanese_title": "ナルト -疾風伝-",
-        "poster": "https://image.tmdb.org/t/p/w500/kV27j3Nz4d5z8u6mN3EJw9RiLg2.jpg",
-        "link": "https://animesalt.cc/series/naruto-shippuden/",
-        "quality": "HD",
-        "year": "2007",
-        "type": "anime",
-        "data_id": 768748400,
-        "tvInfo": {
-          "showType": "TV",
-          "duration": "24 min"
-        }
-      },
-      {
-        "id": "one-piece",
-        "title": "One Piece",
-        "japanese_title": "ONE PIECE",
-        "poster": "https://image.tmdb.org/t/p/w500/uiIB9ctqZFbfRXXimtpmZb5dusi.jpg",
-        "link": "https://animesalt.cc/series/one-piece/",
-        "quality": "HD",
-        "year": "1999",
-        "type": "anime",
-        "data_id": 234567890,
-        "tvInfo": {
-          "showType": "TV",
-          "duration": "24 min"
-        }
-      }
-    ]
-  }
-}
-```
-
----
-
-### GET /api/movies
-
-Retrieves a paginated list of anime movies.
-
-**Parameters**:
-
-| Parameter | Type | Required | Description | Default |
-|-----------|------|----------|-------------|---------|
-| page | number | No | Page number | 1 |
-
-**Example Request**:
-```bash
-curl "https://localhost:4000/api/movies?page=1"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": {
-    "type": "movies",
-    "page": 1,
-    "data": [
-      {
-        "id": "your-name",
-        "title": "Your Name",
-        "japanese_title": "君の名は。",
-        "poster": "https://image.tmdb.org/t/p/w500/q719jXXEzOoYaps6babgKnONONX.jpg",
-        "link": "https://animesalt.cc/movies/your-name/",
-        "quality": "HD",
-        "year": "2016",
-        "type": "anime",
-        "data_id": 345678901,
-        "tvInfo": {
-          "showType": "Movie",
-          "duration": "106 min"
-        }
-      },
-      {
-        "id": "weathering-with-you",
-        "title": "Weathering With You",
-        "japanese_title": "天気の子",
-        "poster": "https://image.tmdb.org/t/p/w500/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg",
-        "link": "https://animesalt.cc/movies/weathering-with-you/",
-        "quality": "HD",
-        "year": "2019",
-        "type": "anime",
-        "data_id": 456789012,
-        "tvInfo": {
-          "showType": "Movie",
-          "duration": "112 min"
-        }
-      }
-    ]
-  }
-}
-```
-
----
-
-## Movie Endpoints
-
-### GET /api/movie
-
-Retrieves detailed information about a specific movie using the dedicated movie extractor. This endpoint is optimized for movie content and returns movie-specific data including servers and download links.
-
-**Parameters**:
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| id | string | Yes | The movie ID (slug format) |
-
-**Example Request**:
-```bash
-curl "https://localhost:4000/api/movie?id=the-loud-house-movie"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "cached": false,
-  "results": {
+    "success": true,
+    "statusCode": 200,
     "data": {
-      "id": "the-loud-house-movie",
-      "data_id": 627820068,
-      "type": "movie",
-      "title": "The Loud House Movie",
-      "japanese_title": "",
-      "poster": "https://image.tmdb.org/t/p/w500/m8qr20ROuawaRWNGPA4lZinT3Xz.jpg",
-      "synopsis": "",
-      "releaseDate": "2024-10-27",
-      "duration": "90 min",
-      "animeInfo": {},
-      "genres": [
-        {
-          "name": "Adventure",
-          "link": "https://animesalt.cc/category/genre/adventure/"
-        },
-        {
-          "name": "Comedy",
-          "link": "https://animesalt.cc/category/genre/comedy/"
-        },
-        {
-          "name": "Family",
-          "link": "https://animesalt.cc/category/genre/family/"
-        },
-        {
-          "name": "Fantasy",
-          "link": "https://animesalt.cc/category/genre/fantasy/"
-        }
-      ],
-      "languages": [
-        {
-          "code": "english",
-          "name": "English",
-          "link": "https://animesalt.cc/category/language/english/"
-        },
-        {
-          "code": "hindi",
-          "name": "Hindi",
-          "link": "https://animesalt.cc/category/language/hindi/"
-        }
-      ],
-      "networks": [],
-      "quality": "HD",
-      "servers": [
-        {
-          "id": "1",
-          "name": "SERVER 1 MyStream",
-          "type": "sub",
-          "quality": "auto"
-        },
-        {
-          "id": "2",
-          "name": "SERVER 2 Abyss",
-          "type": "sub",
-          "quality": "auto"
-        }
-      ],
-      "downloadLinks": [],
-      "relatedMovies": []
+        "keyword": "naruto",
+        "totalResults": 5,
+        "page": 1,
+        "pageSize": 20,
+        "results": [
+            {
+                "id": "naruto-shippuden",
+                "title": "Naruto Shippuden",
+                "poster": "https://image.tmdb.org/t/p/w500/...",
+                "link": "https://animesalt.cc/series/naruto-shippuden/",
+                "showType": "TV"
+            }
+        ]
     }
-  }
-}
-```
-
-**Field Descriptions**:
-
-| Field | Type | Description |
-|-------|------|-------------|
-| id | string | Unique movie identifier (slug format) |
-| data_id | number | Numeric identifier derived from movie ID |
-| title | string | English title of the movie |
-| type | string | Always "movie" for movie endpoints |
-| duration | string | Total movie runtime (e.g., "90 min") |
-| servers | array | Available streaming servers for this movie |
-| relatedMovies | array | Related movie recommendations |
-
----
-
-### GET /api/movie/stream
-
-Retrieves the streaming URL for a specific movie. Unlike series content, movies don't have episode numbers, so only the movie ID is required.
-
-**Parameters**:
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| id | string | Yes | The movie ID (slug format) |
-| server | string | No | Specific server name to filter results |
-
-**Example Request**:
-```bash
-curl "https://localhost:4000/api/movie/stream?id=the-loud-house-movie&server=MyStream"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": {
-    "server": "SERVER 1 MyStream",
-    "url": "https://player.example.com/embed/movie-id",
-    "type": "iframe"
-  }
 }
 ```
 
@@ -1097,369 +618,20 @@ curl "https://localhost:4000/api/movie/stream?id=the-loud-house-movie&server=MyS
 
 ## Category Endpoints
 
-### GET /api/category
+### GET /api/genre/:genre
 
-A flexible category query endpoint that supports various category types. This endpoint provides a unified interface for accessing different types of category pages on the website.
+Retrieves anime filtered by specific genre.
 
 **Parameters**:
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| type | string | Yes | Category type (category, letter, post-type, genre, language, network, studio) |
-| value | string | Yes | Category value (e.g., cartoon, A, series, action, english) |
-| page | number | No | Page number for pagination |
-| pageSize | number | No | Number of items per page (default: 20) |
-
-**Example Requests**:
-```bash
-# Get cartoon category
-curl "https://localhost:4000/api/category?type=category&value=cartoon&page=1"
-
-# Get action genre
-curl "https://localhost:4000/api/category?type=genre&value=action&page=1"
-
-# Get English language content
-curl "https://localhost:4000/api/category?type=language&value=english&page=1"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": {
-    "type": "category",
-    "value": "cartoon",
-    "page": 1,
-    "pageSize": 20,
-    "items": [
-      {
-        "id": "the-bad-guys-breaking-in",
-        "title": "The Bad Guys: Breaking In",
-        "poster": "https://image.tmdb.org/t/p/w500/12ybD4BvgSpmhSjknFPvf1Nu7CC.jpg",
-        "type": "series",
-        "link": "https://animesalt.cc/series/the-bad-guys-breaking-in/",
-        "year": "",
-        "quality": "HD",
-        "dubStatus": "",
-        "data_id": 1141492850
-      }
-    ],
-    "pagination": {
-      "hasNext": false,
-      "hasPrev": false,
-      "currentPage": 1,
-      "totalPages": 6
-    }
-  }
-}
-```
-
----
-
-### GET /api/category/cartoon
-
-Retrieves anime content from the cartoon category. This is a convenience endpoint specifically for cartoon content which is a popular category on animesalt.cc.
-
-**Parameters**:
-
-| Parameter | Type | Required | Description | Default |
-|-----------|------|----------|-------------|---------|
-| page | number | No | Page number for pagination | 1 |
-| pageSize | number | No | Number of items per page | 20 |
+| genre | string | Yes | Genre slug (e.g., action, adventure, comedy) |
+| page | number | No | Page number |
 
 **Example Request**:
 ```bash
-curl "https://localhost:4000/api/category/cartoon?page=1"
-```
-
----
-
-### GET /api/category/letter/:letter
-
-Retrieves anime content based on the first letter of the title. This endpoint is useful for alphabetizing content and allows users to browse anime by letter.
-
-**Parameters**:
-
-| Parameter | Type | Required | Description | Default |
-|-----------|------|----------|-------------|---------|
-| letter | string | Yes | Single letter A-Z | - |
-| page | number | No | Page number for pagination | 1 |
-| pageSize | number | No | Number of items per page | 20 |
-
-**Example Request**:
-```bash
-curl "https://localhost:4000/api/category/letter/A?page=1"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": {
-    "type": "letter",
-    "value": "A",
-    "page": 1,
-    "pageSize": 20,
-    "items": [
-      {
-        "id": "a-condition-called-love",
-        "title": "A Condition Called Love",
-        "poster": "https://image.tmdb.org/t/p/w500/e1ao8YAdgbN0wCUSatCESTPwaAh.jpg",
-        "type": "series",
-        "link": "https://animesalt.cc/series/a-condition-called-love/",
-        "year": "",
-        "quality": "HD",
-        "dubStatus": "",
-        "data_id": 898643364
-      },
-      {
-        "id": "altered-carbon-resleeved",
-        "title": "Altered Carbon: Resleeved",
-        "poster": "https://image.tmdb.org/t/p/w500/vlIYzx7cc4Wvaoh7ShjF2HZG45.jpg",
-        "type": "movie",
-        "link": "https://animesalt.cc/movies/altered-carbon-resleeved/",
-        "year": "",
-        "quality": "HD",
-        "dubStatus": "",
-        "data_id": 418681375
-      }
-    ],
-    "pagination": {
-      "hasNext": true,
-      "hasPrev": false,
-      "currentPage": 1,
-      "totalPages": 3
-    }
-  }
-}
-```
-
----
-
-### GET /api/categories
-
-Retrieves a list of all available categories on the website. This endpoint is useful for building navigation menus or category selection interfaces.
-
-**Parameters**: None required
-
-**Example Request**:
-```bash
-curl "https://localhost:4000/api/categories"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": [
-    {
-      "name": "Cartoon",
-      "slug": "cartoon",
-      "link": "https://animesalt.cc/category/cartoon/"
-    },
-    {
-      "name": "Anime",
-      "slug": "anime",
-      "link": "https://animesalt.cc/category/anime/"
-    },
-    {
-      "name": "Dubbed Anime",
-      "slug": "dubbed-anime",
-      "link": "https://animesalt.cc/category/dubbed-anime/"
-    }
-  ]
-}
-```
-
----
-
-### GET /api/letters
-
-Retrieves a list of all letters that have available content. This endpoint checks which letters (A-Z) have anime starting with that letter and returns only the available ones.
-
-**Parameters**: None required
-
-**Example Request**:
-```bash
-curl "https://localhost:4000/api/letters"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
-}
-```
-
-**Note**: Not all letters may be returned if there is no content starting with that letter in the database.
-
----
-
-### GET /api/genres
-
-Retrieves a list of all available genres.
-
-**Parameters**: None required
-
-**Example Request**:
-```bash
-curl "https://localhost:4000/api/genres"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": [
-    {
-      "name": "Action",
-      "link": "https://animesalt.cc/category/genre/action/"
-    },
-    {
-      "name": "Adventure",
-      "link": "https://animesalt.cc/category/genre/adventure/"
-    },
-    {
-      "name": "Cars",
-      "link": "https://animesalt.cc/category/genre/cars/"
-    },
-    {
-      "name": "Comedy",
-      "link": "https://animesalt.cc/category/genre/comedy/"
-    },
-    {
-      "name": "Dementia",
-      "link": "https://animesalt.cc/category/genre/dementia/"
-    },
-    {
-      "name": "Demons",
-      "link": "https://animesalt.cc/category/genre/demons/"
-    }
-  ]
-}
-```
-
----
-
-### GET /api/networks
-
-Retrieves a list of all available networks/studios with their logos.
-
-**Parameters**: None required
-
-**Example Request**:
-```bash
-curl "https://localhost:4000/api/networks"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": [
-    {
-      "id": "pierrot",
-      "name": "Studio Pierrot",
-      "logo": "https://animesalt.cc/wp-content/uploads/pierrot-logo.png",
-      "link": "https://animesalt.cc/category/network/pierrot/"
-    },
-    {
-      "id": "ufotable",
-      "name": "Ufotable",
-      "logo": "https://animesalt.cc/wp-content/uploads/ufotable-logo.png",
-      "link": "https://animesalt.cc/category/network/ufotable/"
-    },
-    {
-      "id": "madhouse",
-      "name": "Madhouse",
-      "logo": "https://animesalt.cc/wp-content/uploads/madhouse-logo.png",
-      "link": "https://animesalt.cc/category/network/madhouse/"
-    },
-    {
-      "id": "mappa",
-      "name": "MAPPA",
-      "logo": "https://animesalt.cc/wp-content/uploads/mappa-logo.png",
-      "link": "https://animesalt.cc/category/network/mappa/"
-    }
-  ]
-}
-```
-
----
-
-### GET /api/languages
-
-Retrieves a list of all available audio languages.
-
-**Parameters**: None required
-
-**Example Request**:
-```bash
-curl "https://localhost:4000/api/languages"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": [
-    {
-      "code": "hindi",
-      "name": "Hindi",
-      "native": "हिन्दी",
-      "link": "https://animesalt.cc/category/language/hindi/"
-    },
-    {
-      "code": "tamil",
-      "name": "Tamil",
-      "native": "தமிழ்",
-      "link": "https://animesalt.cc/category/language/tamil/"
-    },
-    {
-      "code": "telugu",
-      "name": "Telugu",
-      "native": "తెలుగు",
-      "link": "https://animesalt.cc/category/language/telugu/"
-    },
-    {
-      "code": "bengali",
-      "name": "Bengali",
-      "native": "বাংলা",
-      "link": "https://animesalt.cc/category/language/bengali/"
-    },
-    {
-      "code": "malayalam",
-      "name": "Malayalam",
-      "native": "മലയാളം",
-      "link": "https://animesalt.cc/category/language/malayalam/"
-    },
-    {
-      "code": "kannada",
-      "name": "Kannada",
-      "native": "ಕನ್ನಡ",
-      "link": "https://animesalt.cc/category/language/kannada/"
-    },
-    {
-      "code": "english",
-      "name": "English",
-      "native": "English",
-      "link": "https://animesalt.cc/category/language/english/"
-    },
-    {
-      "code": "japanese",
-      "name": "Japanese",
-      "native": "日本語",
-      "link": "https://animesalt.cc/category/language/japanese/"
-    },
-    {
-      "code": "korean",
-      "name": "Korean",
-      "native": "한국어",
-      "link": "https://animesalt.cc/category/language/korean/"
-    }
-  ]
-}
+curl "https://your-domain.com/api/genre/shounen"
 ```
 
 ---
@@ -1473,101 +645,91 @@ Retrieves anime filtered by specific language.
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | lang | string | Yes | Language code (e.g., hindi, tamil, telugu) |
-| page | query | No | Page number (default: 1) |
+| page | number | No | Page number |
 
 **Example Request**:
 ```bash
-curl "https://localhost:4000/api/language/hindi?page=1"
+curl "https://your-domain.com/api/language/hindi"
+```
+
+---
+
+### GET /api/genres
+
+Retrieves a list of all available genres.
+
+**Parameters**: None required
+
+**Example Request**:
+```bash
+curl "https://your-domain.com/api/genres"
 ```
 
 **Example Response**:
 ```json
 {
-  "success": true,
-  "results": {
-    "language": "hindi",
-    "page": 1,
-    "data": [
-      {
-        "id": "naruto-shippuden",
-        "title": "Naruto Shippuden (Hindi Dubbed)",
-        "japanese_title": "",
-        "poster": "https://image.tmdb.org/t/p/w500/kV27j3Nz4d5z8u6mN3EJw9RiLg2.jpg",
-        "link": "https://animesalt.cc/series/naruto-shippuden/",
-        "quality": "HD",
-        "year": "2007",
-        "type": "anime",
-        "data_id": 768748400,
-        "tvInfo": {
-          "showType": "TV",
-          "duration": "24 min"
-        }
-      }
-    ]
-  }
+    "success": true,
+    "statusCode": 200,
+    "data": {
+        "genres": [
+            {
+                "name": "Action",
+                "icon": "⚔️",
+                "link": "https://animesalt.cc/category/genre/action/"
+            }
+        ]
+    }
 }
 ```
 
 ---
 
-### GET /api/genre/:genre
+### GET /api/languages
 
-Retrieves anime filtered by specific genre.
+Retrieves a list of all available audio languages.
 
-**Parameters**:
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| genre | string | Yes | Genre slug (e.g., action, adventure, comedy) |
-| page | query | No | Page number (default: 1) |
+**Parameters**: None required
 
 **Example Request**:
 ```bash
-curl "https://localhost:4000/api/genre/action?page=1"
+curl "https://your-domain.com/api/languages"
 ```
 
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": {
-    "genre": "action",
-    "page": 1,
-    "data": [
-      {
-        "id": "naruto-shippuden",
-        "title": "Naruto Shippuden",
-        "japanese_title": "ナルト -疾風伝-",
-        "poster": "https://image.tmdb.org/t/p/w500/kV27j3Nz4d5z8u6mN3EJw9RiLg2.jpg",
-        "link": "https://animesalt.cc/series/naruto-shippuden/",
-        "quality": "HD",
-        "year": "2007",
-        "type": "anime",
-        "data_id": 768748400,
-        "tvInfo": {
-          "showType": "TV",
-          "duration": "24 min"
-        }
-      },
-      {
-        "id": "attack-on-titan",
-        "title": "Attack on Titan",
-        "japanese_title": "進撃の巨人",
-        "poster": "https://image.tmdb.org/t/p/w500/hTP1DtLGFamjfu8WqjnuQdP1n4i.jpg",
-        "link": "https://animesalt.cc/series/attack-on-titan/",
-        "quality": "HD",
-        "year": "2013",
-        "type": "anime",
-        "data_id": 567890123,
-        "tvInfo": {
-          "showType": "TV",
-          "duration": "24 min"
-        }
-      }
-    ]
-  }
-}
+---
+
+### GET /api/networks
+
+Retrieves a list of all available networks/studios.
+
+**Parameters**: None required
+
+---
+
+## Letter Endpoints
+
+### GET /api/letter/:letter
+
+Retrieves anime content based on the first letter of the title.
+
+**Parameters**:
+
+| Parameter | Type | Required | Description | Default |
+|-----------|------|----------|-------------|---------|
+| letter | string | Yes | Single letter A-Z | - |
+| page | number | No | Page number | 1 |
+
+**Example Request**:
+```bash
+curl "https://your-domain.com/api/letter/a"
 ```
+
+---
+
+### GET /api/letters
+
+Retrieves a list of all letters that have available content.
+
+**Parameters**: None required
 
 ---
 
@@ -1579,172 +741,20 @@ Retrieves the schedule of recently released and upcoming episodes.
 
 **Parameters**: None required
 
-**Example Request**:
-```bash
-curl "https://localhost:4000/api/schedule"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "results": {
-    "schedule": [
-      {
-        "id": "naruto-shippuden-1x500",
-        "title": "The Final Episode",
-        "episode_no": 500,
-        "releaseDate": "2025-03-15",
-        "time": "00:00:00"
-      },
-      {
-        "id": "one-piece-1x1100",
-        "title": "New World Adventure Continues",
-        "episode_no": 1100,
-        "releaseDate": "2025-03-15",
-        "time": "00:00:00"
-      }
-    ]
-  }
-}
-```
-
 ---
 
-## Utility Endpoints
+## Testing Endpoints
 
-### GET /api/health
+### GET /api/test
 
-Retrieves server health status and statistics.
+Test endpoint to verify API functionality against sample links.
 
 **Parameters**: None required
 
 **Example Request**:
 ```bash
-curl "https://localhost:4000/api/health"
+curl "https://your-domain.com/api/test"
 ```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "status": "ok",
-  "timestamp": "2025-12-29T04:27:00.000Z",
-  "uptime": 3600.5,
-  "version": "2.0.0",
-  "api": "anime-salt-api",
-  "baseUrl": "https://animesalt.cc",
-  "cache": {
-    "size": 150,
-    "maxSize": 1000,
-    "hitRate": 0.35,
-    "memoryUsage": 150000
-  }
-}
-```
-
-**Field Descriptions**:
-
-| Field | Type | Description |
-|-------|------|-------------|
-| status | string | Server status (ok, degraded, error) |
-| uptime | number | Server uptime in seconds |
-| version | string | API version |
-| cache.size | number | Current number of cached items |
-| cache.maxSize | number | Maximum cache size |
-| cache.hitRate | number | Cache hit rate (0-1) |
-| cache.memoryUsage | number | Estimated memory usage in bytes |
-
----
-
-### GET /
-
-Retrieves API documentation and available endpoints.
-
-**Parameters**: None required
-
-**Example Request**:
-```bash
-curl "https://localhost:4000/"
-```
-
-**Example Response**:
-```json
-{
-  "success": true,
-  "message": "Anime Salt API v2.0.0",
-  "description": "Professional Anime Scraping API for animesalt.cc",
-  "version": "2.0.0",
-  "author": "MiniMax Agent",
-  "documentation": "/api",
-  "endpoints": {
-    "home": {
-      "GET /api/home": "Get homepage data",
-      "GET /api/top-ten": "Get top 10 anime"
-    },
-    "info": {
-      "GET /api/info?id={anime-id}": "Get anime details",
-      "GET /api/random": "Get random anime"
-    },
-    "episodes": {
-      "GET /api/episodes?id={anime-id}": "Get episode list"
-    },
-    "stream": {
-      "GET /api/stream": "Get streaming links",
-      "GET /api/servers": "Get available servers"
-    },
-    "search": {
-      "GET /api/search?q={keyword}": "Search anime",
-      "GET /api/search/suggest?q={keyword}": "Get suggestions"
-    },
-    "categories": {
-      "GET /api/series": "Get series",
-      "GET /api/movies": "Get movies",
-      "GET /api/genres": "Get genres",
-      "GET /api/networks": "Get networks",
-      "GET /api/languages": "Get languages"
-    }
-  }
-}
-```
-
----
-
-## Response Format
-
-All API responses follow a consistent JSON structure:
-
-### Success Response
-
-```json
-{
-  "success": true,
-  "cached": false,
-  "timestamp": "2025-12-29T04:27:00.000Z",
-  "results": { ... }
-}
-```
-
-| Field | Type | Description |
-|-------|------|-------------|
-| success | boolean | Always `true` for successful responses |
-| cached | boolean | `true` if response served from cache |
-| timestamp | string | ISO 8601 timestamp of response |
-| results | object | Response data (structure varies by endpoint) |
-
-### Error Response
-
-```json
-{
-  "success": false,
-  "error": "Error message description"
-}
-```
-
-| Field | Type | Description |
-|-------|------|-------------|
-| success | boolean | Always `false` for error responses |
-| error | string | Human-readable error message |
 
 ---
 
@@ -1752,23 +762,34 @@ All API responses follow a consistent JSON structure:
 
 The API uses standard HTTP status codes to indicate success or failure.
 
+### HTTP Status Codes
+
 | Status Code | Meaning | Description |
 |-------------|---------|-------------|
 | 200 | OK | Request successful |
-| 400 | Bad Request | Invalid parameters |
+| 400 | Bad Request | Invalid parameters or missing required fields |
 | 404 | Not Found | Resource not found |
-| 429 | Too Many Requests | Rate limit exceeded |
 | 500 | Internal Server Error | Server error |
+
+### Error Response Format
+
+```json
+{
+    "success": false,
+    "statusCode": 400,
+    "message": "ID parameter is required"
+}
+```
 
 ### Common Error Messages
 
 | Error | Cause | Solution |
 |-------|-------|----------|
-| "Anime ID is required" | Missing `id` parameter | Provide the anime ID |
-| "Invalid anime ID format" | Malformed ID | Use slug format (e.g., `naruto-shippuden`) |
-| "Anime not found" | ID doesn't exist | Verify the anime ID |
-| "Too many requests" | Rate limit exceeded | Wait and retry |
+| "ID parameter is required" | Missing `id` parameter | Provide the anime ID |
+| "Anime ID is invalid" | Invalid ID format | Check the anime ID format |
+| "Episode not found" | Invalid episode number | Verify the episode exists |
 | "Search keyword is required" | Missing search query | Provide a search term |
+| "Invalid letter parameter" | Invalid letter format | Use single letter A-Z |
 
 ---
 
@@ -1781,15 +802,15 @@ const axios = require('axios');
 
 async function getAnimeInfo(animeId) {
     try {
-        const response = await axios.get(`https://localhost:4000/api/info`, {
+        const response = await axios.get(`https://your-domain.com/api/info`, {
             params: { id: animeId }
         });
-        
+
         if (response.data.success) {
-            const anime = response.data.results.data;
+            const anime = response.data.data;
             console.log(`Title: ${anime.title}`);
-            console.log(`Episodes: ${anime.episodes.length}`);
-            console.log(`Genres: ${anime.genres.map(g => g.name).join(', ')}`);
+            console.log(`Type: ${anime.showType}`);
+            console.log(`Episodes: ${anime.tvInfo?.eps || 'N/A'}`);
         }
     } catch (error) {
         console.error('Error fetching anime:', error.message);
@@ -1807,60 +828,62 @@ import requests
 def get_anime_info(anime_id):
     try:
         response = requests.get(
-            'https://localhost:4000/api/info',
+            'https://your-domain.com/api/info',
             params={'id': anime_id}
         )
         data = response.json()
-        
+
         if data['success']:
-            anime = data['results']['data']
+            anime = data['data']
             print(f"Title: {anime['title']}")
-            print(f"Episodes: {len(anime['episodes'])}")
-            print(f"Genres: {[g['name'] for g in anime['genres']]}")
+            print(f"Type: {anime['showType']}")
         else:
-            print(f"Error: {data['error']}")
+            print(f"Error: {data['message']}")
     except Exception as e:
         print(f"Error: {e}")
 
 get_anime_info('naruto-shippuden')
 ```
 
-### cURL Example
+### cURL Examples
 
 ```bash
 # Get anime details
-curl "https://localhost:4000/api/info?id=naruto-shippuden"
+curl "https://your-domain.com/api/info?id=naruto-shippuden"
 
 # Search for anime
-curl "https://localhost:4000/api/search?q=dragon"
+curl "https://your-domain.com/api/search?q=dragon"
 
 # Get streaming links
-curl "https://localhost:4000/api/stream?id=naruto-shippuden&episode=1x1"
+curl "https://your-domain.com/api/stream?id=naruto-shippuden&episode=1x1"
 
 # Get episode list
-curl "https://localhost:4000/api/episodes?id=naruto-shippuden"
+curl "https://your-domain.com/api/episodes?id=naruto-shippuden"
+
+# Get homepage data
+curl "https://your-domain.com/api/home"
 ```
 
-### React/Vue Example
+### React Example
 
 ```javascript
 // Using fetch API
 async function fetchAnimeEpisodes(animeId) {
     const response = await fetch(
-        `https://localhost:4000/api/episodes?id=${animeId}`
+        `https://your-domain.com/api/episodes?id=${animeId}`
     );
     const data = await response.json();
-    
+
     if (data.success) {
-        return data.results.episodes;
+        return data.data.episodes;
     }
     return [];
 }
 
-// Display episodes in your component
+// Display episodes
 const episodes = await fetchAnimeEpisodes('naruto-shippuden');
 episodes.forEach(ep => {
-    console.log(`Episode ${ep.episode_no}: ${ep.title}`);
+    console.log(`Episode ${ep.episode}: ${ep.episodeLabel}`);
 });
 ```
 
@@ -1870,9 +893,10 @@ episodes.forEach(ep => {
 
 For issues, feature requests, or questions:
 
-- Check the [GitHub Repository](#)
 - Review error messages for debugging
 - Ensure parameters are correctly formatted
+- Check the API documentation at `/docs`
+- Visit the landing page at `/` for quick reference
 
 ---
 
@@ -1884,17 +908,77 @@ This API is provided for educational purposes. Data is sourced from animesalt.cc
 
 ## Changelog
 
-### v2.0.0 (December 2025)
+### v5.1.0 (January 2026) - Watch Page Backdrop Scraping
 
-- Complete rewrite with modular architecture
-- Added professional data format matching industry standards
-- Implemented in-memory caching system
-- Added rate limiting
-- New endpoints: search/suggest, top-search, networks, languages
-- Improved streaming link extraction
-- Added multi-language player support
-- Enhanced error handling
-- Comprehensive documentation
+- **HD Backdrop Extraction**: Spotlight backdrops are now scraped directly from each item's watch page
+  - Fetches each spotlight item's detail page to extract the authentic backdrop image
+  - Returns the complete `<div class="bghd">...</div>` structure exactly as it appears on animesalt.cc
+  - Preserves all image attributes including lazy-loading classes and data-src URLs
+- **Parallel Processing**: All watch page requests run concurrently using Promise.all
+  - Minimizes total request time despite extra network calls
+  - Each request includes retry logic for reliability
+- **Fallback Support**: Graceful degradation when watch pages cannot be fetched
+  - Automatically falls back to poster-based backdrop generation
+  - No empty or broken backdrops in API response
+- **Error Handling**: Individual backdrop fetch failures don't break the entire response
+  - Failed requests are logged for monitoring
+  - Fallback backdrops are generated with proper w1280 image sizing
+
+### v5.0.1 (January 2026) - Feature Update
+
+- **Fresh Drops Enhancement**: Added `season` and `episode` fields to provide precise tracking of newly released content
+  - `season`: The season number for the latest release (e.g., 15)
+  - `episode`: The episode number for the latest release (e.g., 468)
+  - Handles multiple format variations: "Season X", "Seasons X-Y", "EP:X", "X episodes"
+- **Upcoming Episodes Enhancement**: Added countdown timer functionality
+  - `countdown`: Human-readable time until release (e.g., "5h 14m", "2d 3h")
+  - `nextEpisode`: The episode number of the upcoming release
+- **Spotlight Improvements**: 
+  - Limited to exactly 10 items for curated content display
+  - Mixed content from trending and most-watched sections
+  - Strategic movie placement at positions 2 and 6 for content variety
+  - Backdrop images now use direct `<img>` tag for frontend flexibility
+  - Uses w1280 image size for high-quality backdrop display with HTTPS protocol
+- **Bug Fixes**:
+  - Fixed year extraction - now returns null instead of defaulting to current year when not found
+  - Corrected content type filtering to prevent movies appearing in series sections
+  - Resolved data format variations for anime with different episode naming conventions
+
+### v5.0.0 (January 2026) - Production Edition
+
+- **Landing Page**: New beautiful lime-themed landing page at root URL (`/`)
+- **Modern UI Design**: Animated backgrounds, glassmorphism effects, responsive layout
+- **Statistics Display**: Shows 6,060+ episodes, 342+ series, 124+ movies
+- **Quick Actions**: Direct links to documentation and API testing
+- **Standardized Responses**: Consistent JSON structure with `success`, `statusCode`, `data`/`message`
+- **Input Validation**: Centralized validation with XSS protection
+- **Sub-Only Filtering**: Enhanced pattern matching for content availability detection
+- **New Letter Endpoint**: Added `/api/letter/:letter` for alphabet-based browsing
+- **Cartoon Categories**: Filter cartoons by Series, Movies, Shorts, Specials, Crossovers
+- **Error Handler**: New standardized error handling with `ApiError` class
+- **Code Refactoring**: Modular architecture with dedicated parsers and utilities
+
+### v4.0.0 (January 2026) - Refactor Update
+
+- **Modular Architecture**: Complete rewrite with dedicated parser modules
+- **Home Parser**: New `homeParser.js` for clean homepage extraction
+- **Cache System**: Enhanced in-memory caching with proper TTL
+- **Validation Middleware**: Centralized input sanitization and validation
+- **Documentation Update**: Comprehensive README and DOCUMENTATION
+
+### v3.1.0 (January 2026) - Feature Update
+
+- **Language Selection**: Added `?lang` query parameter support
+- **Smart Player Naming**: Intelligent player labeling based on content type
+- **Content Detection**: Enhanced sub/dub/regional detection
+- **Related Anime**: New extraction of recommended anime from watch pages
+
+### v3.0.0 (December 2025) - Masterpiece Edition
+
+- **Spotlight Enhancements**: 8 items with w1280 backdrop images
+- **Smart Recommendations**: Up to 20 related anime suggestions
+- **Fresh Drops**: New extraction of newly dubbed content
+- **URL Format Update**: Query parameter format for episodes
 
 ---
 

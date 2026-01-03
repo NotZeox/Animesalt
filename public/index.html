@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnimeSalt API - Production Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --lime-primary: #84cc16;
+            --lime-light: #a3e635;
+            --lime-dark: #65a30d;
+            --lime-glow: rgba(132, 204, 22, 0.4);
+            --background: #0a0a0f;
+            --surface: #13131a;
+            --surface-light: #1e1e2a;
+            --surface-lime: rgba(132, 204, 22, 0.1);
+            --text: #fafafa;
+            --text-muted: #a1a1aa;
+            --border: rgba(132, 204, 22, 0.2);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Animated Background */
+        .bg-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .bg-effects::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 20%, var(--surface-lime) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(132, 204, 22, 0.05) 0%, transparent 40%);
+            animation: bgPulse 15s ease-in-out infinite;
+        }
+
+        @keyframes bgPulse {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 20px 0;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--lime-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo span {
+            background: linear-gradient(135deg, var(--lime-light), var(--lime-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--lime-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 120px 0 80px;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            background: var(--surface-lime);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            font-size: 14px;
+            color: var(--lime-primary);
+            margin-bottom: 32px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--lime-primary);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(48px, 8vw, 80px);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .hero-title .lime {
+            background: linear-gradient(135deg, var(--lime-light) 0%, var(--lime-primary) 50%, var(--lime-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(18px, 2.5vw, 22px);
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 48px;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 80px;
+            animation: fadeInUp 0.8s ease 0.6s both;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-lime {
+            background: linear-gradient(135deg, var(--lime-primary) 0%, var(--lime-dark) 100%);
+            color: var(--background);
+            box-shadow: 0 4px 20px var(--lime-glow);
+        }
+
+        .btn-lime:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px var(--lime-glow);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--lime-primary);
+            color: var(--lime-primary);
+            transform: translateY(-4px);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            margin-bottom: 100px;
+            animation: fadeInUp 0.8s ease 0.8s both;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--lime-dark), var(--lime-light));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--lime-primary);
+            box-shadow: 0 20px 40px rgba(132, 204, 22, 0.1);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 42px;
+            font-weight: 700;
+            color: var(--lime-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .stat-value .unit {
+            font-size: 24px;
+            color: var(--lime-light);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
+        }
+
+        .section-tag {
+            display: inline-block;
+            padding: 6px 16px;
+            background: var(--surface-lime);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            font-size: 14px;
+            color: var(--lime-primary);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(36px, 5vw, 48px);
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .section-desc {
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px 32px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(132, 204, 22, 0.03) 100%);
+            pointer-events: none;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--lime-primary);
+            box-shadow: 0 20px 40px rgba(132, 204, 22, 0.1);
+        }
+
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--surface-lime);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            background: linear-gradient(135deg, var(--lime-primary), var(--lime-dark));
+            border-color: transparent;
+            transform: scale(1.1);
+        }
+
+        .feature-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .feature-desc {
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        /* Endpoints Section */
+        .endpoints {
+            padding: 100px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .endpoints-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .endpoint-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .endpoint-card:hover {
+            border-color: var(--lime-primary);
+            background: var(--surface-light);
+            transform: translateX(8px);
+        }
+
+        .endpoint-method {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'Space Grotesk', monospace;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .method-get {
+            background: rgba(132, 204, 22, 0.15);
+            color: var(--lime-primary);
+        }
+
+        .endpoint-path {
+            font-family: 'Space Grotesk', monospace;
+            font-size: 15px;
+            color: var(--text-muted);
+        }
+
+        /* Footer */
+        .footer {
+            padding: 60px 0 40px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .footer-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--lime-primary);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--lime-primary);
+        }
+
+        .footer-copy {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .footer-copy a {
+            color: var(--lime-primary);
+            text-decoration: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-effects"></div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <div class="nav-content">
+                <a href="/" class="nav-logo">
+                    <span>AnimeSalt</span> API
+                </a>
+                <ul class="nav-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#endpoints">Endpoints</a></li>
+                    <li><a href="/docs">Documentation</a></li>
+                    <li><a href="https://animesalt.cc" target="_blank">Source</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge">Production Ready v5.0</div>
+            <h1 class="hero-title">
+                The Ultimate<br>
+                <span class="lime">Anime Data API</span>
+            </h1>
+            <p class="hero-subtitle">
+                Powered by animesalt.cc, AnimeSalt API delivers comprehensive anime data
+                with lightning-fast extraction of episodes, streams, movies, and more.
+            </p>
+            <div class="hero-buttons">
+                <a href="/docs" class="btn btn-lime">
+                    Read Documentation
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                </a>
+                <a href="/api/home" class="btn btn-outline">
+                    Try API Now
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="10 8 16 12 10 16"></polyline>
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📺</div>
+                        <div class="stat-value">6,060</div>
+                        <div class="stat-label">Episodes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-value">342<span class="unit">+</span></div>
+                        <div class="stat-label">Series</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🎬</div>
+                        <div class="stat-value">124</div>
+                        <div class="stat-label">Movies</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-value">25<span class="unit">+</span></div>
+                        <div class="stat-label">Endpoints</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Features</span>
+                <h2 class="section-title">Production-Grade Capabilities</h2>
+                <p class="section-desc">
+                    Everything you need to build powerful anime applications with our comprehensive API endpoints
+                </p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📺</div>
+                    <h3 class="feature-title">Episode Management</h3>
+                    <p class="feature-desc">
+                        Extract complete episode lists with proper Season x Episode format, availability status,
+                        and multi-player stream links for seamless viewing experiences.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎬</div>
+                    <h3 class="feature-title">Download Links</h3>
+                    <p class="feature-desc">
+                        Access download links from multiple file hosts with quality indicators.
+                        Support for various video qualities and formats.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏷️</div>
+                    <h3 class="feature-title">Regional Availability</h3>
+                    <p class="feature-desc">
+                        Intelligent detection of episodes with language restrictions.
+                        Automatically identifies sub-only and dub-only content.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">Movies Endpoint</h3>
+                    <p class="feature-desc">
+                        Dedicated movies listing with pagination, genre filtering,
+                        and comprehensive movie metadata for anime films.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3 class="feature-title">Cartoon Categories</h3>
+                    <p class="feature-desc">
+                        Filter cartoons by Series, Movies, Shorts, Specials, and Crossovers.
+                        Perfect for building children's content applications.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧪</div>
+                    <h3 class="feature-title">Testing Suite</h3>
+                    <p class="feature-desc">
+                        Built-in testing endpoint to verify API functionality against
+                        sample links. Ensure production readiness before deployment.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Endpoints Section -->
+    <section class="endpoints" id="endpoints">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">API</span>
+                <h2 class="section-title">Available Endpoints</h2>
+                <p class="section-desc">
+                    Clean, RESTful endpoints designed for modern applications
+                </p>
+            </div>
+            <div class="endpoints-grid">
+                <a href="/api/home" class="endpoint-card">
+                    <span class="endpoint-method method-get">GET</span>
+                    <span class="endpoint-path">/api/home</span>
+                </a>
+                <a href="/api/info?id=steinsgate" class="endpoint-card">
+                    <span class="endpoint-method method-get">GET</span>
+                    <span class="endpoint-path">/api/info?id={id}</span>
+                </a>
+                <a href="/api/episodes?id=steinsgate" class="endpoint-card">
+                    <span class="endpoint-method method-get">GET</span>
+                    <span class="endpoint-path">/api/episodes?id={id}</span>
+                </a>
+                <a href="/api/stream?id=steinsgate-1" class="endpoint-card">
+                    <span class="endpoint-method method-get">GET</span>
+                    <span class="endpoint-path">/api/stream?id={id}</span>
+                </a>
+                <a href="/api/movies" class="endpoint-card">
+                    <span class="endpoint-method method-get">GET</span>
+                    <span class="endpoint-path">/api/movies</span>
+                </a>
+                <a href="/api/cartoon" class="endpoint-card">
+                    <span class="endpoint-method method-get">GET</span>
+                    <span class="endpoint-path">/api/cartoon</span>
+                </a>
+                <a href="/api/search?q=naruto" class="endpoint-card">
+                    <span class="endpoint-method method-get">GET</span>
+                    <span class="endpoint-path">/api/search?q={query}</span>
+                </a>
+                <a href="/api/genre/shounen" class="endpoint-card">
+                    <span class="endpoint-method method-get">GET</span>
+                    <span class="endpoint-path">/api/genre/{name}</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">AnimeSalt API</div>
+                <ul class="footer-links">
+                    <li><a href="/docs">Documentation</a></li>
+                    <li><a href="/api">API Info</a></li>
+                    <li><a href="https://animesalt.cc" target="_blank">Source Site</a></li>
+                    <li><a href="https://github.com" target="_blank">GitHub</a></li>
+                </ul>
+                <p class="footer-copy">
+                    Powered by <a href="https://animesalt.cc" target="_blank">animesalt.cc</a> |
+                    Built with modern web technologies
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
